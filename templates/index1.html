@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="utf-8">
+    <title>ECharts</title>
+    {% load staticfiles %}
+    {% load staticfiles %}
+    <script src="{% static 'js/echarts.min.js' %}"></script>
+    <link href="{% static 'asset/css/bootstrap.css' %}">
+    <link href="{% static 'asset/css/echartsHome.css' %}">
+    <!-- ECharts单文件引入 -->
+    <script src="{% static 'js/echarts.js' %}"></script>
+    <script src="{% static 'asset/js/jquery.min.js' %}"></script>
+    <script src="{% static 'asset/js/bootstrap.min.js' %}"></script>
+
+
+    <script src="{% static 'js/date_format.js' %}"></script>
+</head>
+<body>
+<!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+<div class="container-fluid">
+    <div class="row-fluid example">
+        <div id="graphic" class="col-md-8">
+            <div id="main" style="height:800px"></div>
+        </div>
+
+    </div>
+</div>
+<div id="main1" style="height: 400px"></div>
+<script type="text/javascript">
+    var myChart = echarts.init(document.getElementById('main'));
+
+    var start_time = new Date();
+    start_time.setHours(start_time.getHours() - 1);
+    start_time = start_time.Format('yyyy-MM-dd hh:mm:ss');
+    var end_time = new Date();
+    end_time = end_time.Format('yyyy-MM-dd hh:mm:ss');
+    var yDatas = [];
+    var params = {
+        temp_time_0: start_time,
+        temp_time_1: end_time
+    };
+
+    function load_data(success) {
+        $.getJSON('/temperatures1', params, function (result) {
+            var _yDatas = [];
+            $.each(result, function (index, temp) {
+                temp.temp_time = temp.temp_time.replace('Z', '+0800');
+                console.log(temp.temp_time)
+                _yDatas.push({
+                    name: temp.temp_time,
+                    value: [
+                        temp.temp_time,
+                        temp.temp_value
+                    ]
+                })
+            });
+            success(_yDatas);
+        });
+    }
+
+    option = {
+        title: {
+            text: '动态温度数据'
+        },
+        tooltip: {
+            trigger: 'axis',
+            axisPointer: {
+                animation: false
+            }
+        },
+        toolbox: {
+            feature: {
+                dataZoom: {
+                    yAxisIndex: 'none'
+                },
+                restore: {},
+                saveAsImage: {}
+            }
+        },
+        dataZoom: [
+            {
+                show: true,
+                realtime: true,
+                start: 70,
+                end: 100,
+            },
+            {
+                type: 'inside',
+                realtime: true,
+                start: 70,
+                end: 100,
+            }
+        ],
+        xAxis: {
+            type: 'time',
+            splitLine: {
+                show: false
+            }
+        },
+        yAxis: {
+            type: 'value',
+            boundaryGap: [0.2, 0.2],
+            splitLine: {
+                show: true
+            }
+        },
+        series: [{
+            name: '模拟数据',
+            type: 'line',
+            showSymbol: false,
+            hoverAnimation: false,
+            data: []
+        }]
+    };
+
+    setInterval(function () {
+        start_time = end_time;
+        end_time = new Date();
+        end_time = end_time.Format('yyyy-MM-dd hh:mm:ss');
+        params = {
+            temp_time_0: start_time,
+            temp_time_1: end_time
+        };
+        load_data(function (data) {
+            $.each(data, function (idx, _data) {
+                yDatas.shift();
+                yDatas.push(_data);
+                myChart.hideLoading();
+                myChart.setOption({
+                    series: [
+                        {
+                            data: yDatas
+                        }
+                    ]
+                });
+            });
+
+        });
+
+    }, 5000); // 使用刚指定的配置项和数据显示图表。
+    load_data(function (data) {
+        $.each(data, function (idx, _data) {
+            yDatas.push(_data)
+        });
+        myChart.hideLoading();
+        myChart.setOption({
+            series: [
+                {
+                    data: yDatas
+                }
+            ]
+        });
+    });
+    myChart.setOption(option);
+</script>
+</body>

@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="utf-8">
+    <title>ECharts</title>
+    {% load staticfiles %}
+    {% load staticfiles %}
+    <script src="{% static 'js/echarts.min.js' %}"></script>
+    <link href="{% static 'asset/css/bootstrap.css' %}">
+    <link href="{% static 'asset/css/echartsHome.css' %}">
+    <!-- ECharts单文件引入 -->
+    <script src="{% static 'js/echarts.js' %}"></script>
+    <script src="{% static 'asset/js/jquery.min.js' %}"></script>
+    <script src="{% static 'asset/js/bootstrap.min.js' %}"></script>
+
+
+    <script src="{% static 'js/date_format.js' %}"></script>
+</head>
+<body>
+<!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+<div class="container-fluid">
+    <div class="row-fluid example">
+        <div id="graphic" class="col-md-8">
+            <div id="main" style="height:400px"></div>
+        </div>
+
+    </div>
+</div>
+<div id="main1" style="height: 400px"></div>
+<script type="text/javascript">
+    // 路径配置
+    require.config({
+        paths: {
+            echarts: "{% static 'js/dist' %}"
+        }
+    });
+
+    // 使用
+    require(
+        [
+            'echarts',
+            'echarts/chart/bar', // 使用柱状图就加载bar模块，按需加载
+            'echarts/chart/line' // 使用柱状图就加载bar模块，按需加载
+        ],
+        function (ec) {
+            // 基于准备好的dom，初始化echarts图表
+            {#            var myChart = ec.init(document.getElementById('main'), 'macarons');#}
+            var myChart1 = ec.init(document.getElementById('main1'), 'macarons');
+            option1 = {
+                title: {
+                    text: '实时温度数据',
+                    subtext: '测试'
+                },
+                tooltip: {
+                    trigger: 'axis'
+                },
+                legend: {
+                    data: ['温度数据']
+                },
+                toolbox: {
+                    show: true,
+                    feature: {
+                        mark: {show: true},
+                        dataView: {show: true, readOnly: false},
+                        magicType: {show: true, type: ['line']},
+                        restore: {show: true},
+                        saveAsImage: {show: true}
+                    }
+                },
+                dataZoom: {
+                    show: false,
+                    start: 0,
+                    end: 100
+                },
+                xAxis: [
+                    {
+                        type: 'category',
+                        boundaryGap: true,
+                        data: ["2017-11-28 10:09:04"]
+
+                    }
+                ],
+                yAxis: [
+                    {
+                        type: 'value',
+                        scale: true,
+                        name: '温度',
+                        boundaryGap: [0.1, 0.1]
+
+                    }
+
+                ],
+                series: [
+                    {
+                        name: '温度数据',
+                        type: 'line',
+                        data: [10.8]
+
+                    }
+                ]
+
+            };
+            setInterval(function () {
+                var start_time = new Date();
+                start_time.setHours(start_time.getHours() - 1);
+                start_time = start_time.Format('yyyy-MM-dd hh:mm:ss');
+                var end_time = new Date();
+                end_time = end_time.Format('yyyy-MM-dd hh:mm:ss');
+                var data = {
+                    temp_time_0: start_time,
+                    temp_time_1: end_time
+                };
+                axisData = (new Date()).toLocaleString().replace('^\D*', '');
+                $.getJSON('/temperatures1', data, function (result) {
+                    var yDatas = [];
+                    var xDatas = []
+                    $.each(result, function (index, temp) {
+                        yDatas.push(temp.temp_value);
+                        xDatas.push(temp.temp_time.replace('T', ' ').replace('Z', ''))
+                    });
+                    myChart1.hideLoading();
+                    myChart1.setOption({
+                        xAxis: {
+                            data: xDatas
+                        },
+                        series: [
+                            {
+                                name:'温度数据',
+                                data: yDatas
+                            }
+                        ]
+                    });
+                });
+            }, 10000);
+            myChart1.setOption(option1);
+            option = {
+                title: {
+                    text: '动态数据',
+                    subtext: '纯属虚构'
+                },
+                tooltip: {
+                    trigger: 'axis'
+                },
+                legend: {
+                    data: ['最新成交价', '预购队列']
+                },
+                toolbox: {
+                    show: true,
+                    feature: {
+                        mark: {show: true},
+                        dataView: {show: true, readOnly: false},
+                        magicType: {show: true, type: ['line', 'bar']},
+                        restore: {show: true},
+                        saveAsImage: {show: true}
+                    }
+                },
+                dataZoom: {
+                    show: false,
+                    start: 0,
+                    end: 100
+                },
+                xAxis: [
+                    {
+                        type: 'category',
+                        boundaryGap: true,
+                        data: (function () {
+                            var now = new Date();
+                            var res = [];
+                            var len = 10;
+                            while (len--) {
+                                res.unshift(now.toLocaleTimeString().replace(/^\D*/, ''));
+                                now = new Date(now - 2000);
+                            }
+                            return res;
+                        })()
+                    }
+                ],
+                yAxis: [
+                    {
+                        type: 'value',
+                        scale: true,
+                        name: '价格',
+                        boundaryGap: [0.2, 0.2]
+                    }
+                ],
+                series: [
+                    {
+                        name: '最新成交价',
+                        type: 'line',
+                        data: (function () {
+                            var res = [];
+                            var len = 10;
+                            while (len--) {
+                                res.push((Math.random() * 10 + 5).toFixed(1) - 0);
+                            }
+                            return res;
+                        })()
+                    }
+                ]
+            };
+            var lastData = 11;
+            var axisData;
+{#            setInterval(function () {#}
+{#                lastData += Math.random() * ((Math.round(Math.random() * 10) % 2) == 0 ? 1 : -1);#}
+{#                lastData = lastData.toFixed(1) - 0;#}
+{#                axisData = (new Date()).toLocaleTimeString().replace(/^\D*/, '');#}
+{##}
+{#                // 动态数据接口 addData#}
+{#                myChart.addData([#}
+{#                    [#}
+{#                        0,        // 系列索引#}
+{#                        Math.round(Math.random() * 1000), // 新增数据#}
+{#                        false,     // 新增数据是否从队列头部插入#}
+{#                        false,    // 是否增加队列长度，false则自定删除原有数据，队头插入删队尾，队尾插入删队头#}
+{#                        axisData#}
+{#                    ],#}
+{#                    [#}
+{#                        1,        // 系列索引#}
+{#                        lastData, // 新增数据#}
+{#                        false,    // 新增数据是否从队列头部插入#}
+{#                        false,    // 是否增加队列长度，false则自定删除原有数据，队头插入删队尾，队尾插入删队头#}
+{#                        axisData  // 坐标轴标签#}
+{#                    ]#}
+{#                ]);#}
+{#            }, 2100);#}
+
+
+            // 为echarts对象加载数据
+            {#            myChart.setOption(option);#}
+        }
+    );
+</script>
+</body>

@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Socket</title>
+    {% load staticfiles %}
+    <script src="{% static 'js/socket.io.js' %}"></script>
+</head>
+<body>
+<script>
+    var socket = io.connect('ws://127.0.0.1:8088');
+    socket.on('connect', function () {
+        socket.emit('my event', {data: 'connect!'})
+    });
+    socket.on('my response',function (msg) {
+{#        socket.emit('my event', {data: msg});#}
+        console.log(msg)
+    })
+</script>
+</body>
+</html>

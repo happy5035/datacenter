@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="utf-8">
+    <title>ECharts</title>
+    {% load staticfiles %}
+    {% load staticfiles %}
+    <script src="{% static 'js/echarts.min.js' %}"></script>
+    <link href="{% static 'asset/css/bootstrap.css' %}">
+    <link href="{% static 'asset/css/echartsHome.css' %}">
+    <!-- ECharts单文件引入 -->
+    <script src="{% static 'js/echarts.js' %}"></script>
+    <script src="{% static 'asset/js/jquery.min.js' %}"></script>
+    <script src="{% static 'asset/js/bootstrap.min.js' %}"></script>
+
+
+    <script src="{% static 'js/date_format.js' %}"></script>
+</head>
+<body>
+<!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+<div id="main" style="height: 400px"></div>
+<script type="text/javascript">
+    var myChart = echarts.init(document.getElementById('main'));
+    option = {
+        title: {
+            text: 'Graph 简单示例'
+        },
+        tooltip: {},
+        animationDurationUpdate: 1500,
+        animationEasingUpdate: 'quinticInOut',
+        series: [
+            {
+                type: 'graph',
+                layout: 'none',
+                symbolSize: 50,
+                roam: true,
+                label: {
+                    normal: {
+                        formatter:function (params) {
+                            return ['{a|'+params.name+'}','{b|'+params.value.toFixed(2)+'℃'+'}'].join('\n')
+                        },
+                        show: true,
+                        rich:{
+                            a:{
+                                color:'blue'
+                            },
+                            b:{
+                                color:'yellow',
+                                align:'center'
+                            }
+                        }
+                    }
+
+                },
+                edgeSymbol: ['circle', 'arrow'],
+                edgeSymbolSize: [4, 10],
+                edgeLabel: {
+                    normal: {
+                        textStyle: {
+                            fontSize: 20
+                        },
+                        show:false
+                    }
+                },
+                data: [{
+                    id: '1',
+                    name:'0x0000',
+                    value:0,
+                    x: 300,
+                    y: 300
+                }, {
+                    id: '2',
+                    name:'0x1234',
+                    value:30,
+                    x: 800,
+                    y: 300
+                }, {
+                    id: '3',
+                    name:'0x5698',
+                    value:30,
+                    x: 550,
+                    y: 100
+                }, {
+                    id: '4',
+                    name:'0x4876',
+                    value:30,
+                    x: 550,
+                    y: 500
+                }],
+                // links: [],
+                links: [{
+                    source: 0,
+                    target: 1,
+                    symbolSize: [5, 20],
+                    label: {
+                        normal: {
+                            show: false
+                        }
+                    },
+                    lineStyle: {
+                        normal: {
+                            width: 5,
+                            curveness: 0.2
+                        }
+                    }
+                }, {
+                    source: '2',
+                    target: '1',
+                    label: {
+                        normal: {
+                            show: false
+                        }
+                    },
+                    lineStyle: {
+                        normal: {curveness: 0.2}
+                    }
+                }, {
+                    source: '1',
+                    target: '3'
+                }, {
+                    source: '2',
+                    target: '3'
+                }, {
+                    source: '2',
+                    target: '4'
+                }, {
+                    source: '1',
+                    target: '4'
+                }],
+                lineStyle: {
+                    normal: {
+                        opacity: 0.9,
+                        width: 2,
+                        curveness: 0
+                    }
+                }
+            }
+        ]
+    };
+    myChart.setOption(option);
+    setInterval(function () {
+        $.each(option.series[0].data,function (idx,item) {
+            if (idx ==0) return;
+            var value = Math.random() * 10;
+            if(Math.random() > 0.5 ) value = -value;
+            item.value = 30 + value;
+        });
+        myChart.setOption(option);
+    },1000)
+</script>
