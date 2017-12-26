@@ -29,6 +29,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'suit',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -107,7 +108,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Shanghai'
 
 USE_I18N = True
 
@@ -134,4 +135,10 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly',
 
     ]
+}
+SUIT_CONFIG = {
+    'MENU_EXCLUDE': ('auth.group', 'auth'),
+    'ADMIN_NAME': '数据中心温度监控管理系统',
+    'HEADER_DATE_FORMAT': 'c',  # Saturday, 16th March 2013
+    'HEADER_TIME_FORMAT': 'H:i',  # 18:42
 }

@@ -15,33 +15,18 @@ Including another URLconf
 """
 from django.conf.urls import url, include
 from rest_framework import routers
-from django.contrib import admin
 from rest_framework.urlpatterns import format_suffix_patterns
-from datacenter.models import *
+from django.contrib import admin
 from . import views
 
 router = routers.DefaultRouter()
-router.register(r'users', views.UserViewSet)
-router.register(r'groups', views.GroupViewSet)
 
 
-class TemperatureAdmin(admin.ModelAdmin):
-    list_display = ('net_addr', 'ext_addr', 'temp_time', 'temp_value')
-
-    def net_addr(self, temp):
-        return temp.end_device.net_addr
-
-    def ext_addr(self, temp):
-        return temp.end_device.ext_addr
+# router.register(r'users', views.UserViewSet)
+# router.register(r'groups', views.GroupViewSet)
 
 
-class EndDeviceAdmin(admin.ModelAdmin):
-    list_display = ('ext_addr', 'net_addr', 'voltage', 'temp', 'hum', 'hum_freq', 'temp_freq', 'status')
 
-
-admin.site.register(Temperature, TemperatureAdmin)
-admin.site.register(EndDevice, EndDeviceAdmin)
-admin.site.register(Humidity)
 
 urlpatterns = [
     url(r'^', include(router.urls)),

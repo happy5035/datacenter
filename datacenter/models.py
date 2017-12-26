@@ -19,6 +19,7 @@ class EndDevice(models.Model):
     voltage = models.FloatField(db_column='voltage')
     temp = models.FloatField(db_column='temp')
     hum = models.FloatField(db_column='hum')
+    update_time = models.DateTimeField(db_column='update_time')
 
 
 class Temperature(models.Model):
@@ -40,8 +41,10 @@ class Humidity(models.Model):
     humi_value = models.FloatField(db_column='humi_value')
     humi_time = models.DateTimeField(db_column='humi_time')
 
+
 from pygments.lexers import get_all_lexers
 from pygments.styles import get_all_styles
+
 LEXERS = [item for item in get_all_lexers() if item[1]]
 LANGUAGE_CHOICES = sorted([(item[1][0], item[0]) for item in LEXERS])
 STYLE_CHOICES = sorted((item, item) for item in get_all_styles())
