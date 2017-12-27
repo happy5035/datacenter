@@ -22,7 +22,15 @@ class TemperatureAdmin(admin.ModelAdmin):
 
 class EndDeviceAdmin(admin.ModelAdmin):
     exclude = ('end_device_id',)
-    list_display = ('ext_addr', 'net_addr', 'voltage', 'temp', 'hum', 'hum_freq', 'temp_freq', 'status', 'update_time')
+    list_display = (
+    'ext_addr', 'net_addr', 'voltage', 'temp', 'hum', 'hum_freq', 'temp_freq', 'status', 'update_time', 'test')
+
+    def test(self, end):
+        return '<a href=/diagram/{pk}>open</a>'.format(pk=end.end_device_id)
+        pass
+
+    test.allow_tags = True
+    test.short_description = 'Diagram'
 
 
 admin.site.register(Temperature, TemperatureAdmin)

@@ -177,8 +177,16 @@
                 yAxis: [
                     {
                         type: 'value',
-                        scale: true,
+{#                        scale: true,#}
                         name: '价格',
+                        min:function (value) {
+                            return value.min -30
+
+                        },
+                        max:function (value) {
+                            return value.max + 20
+
+                        },
                         boundaryGap: [0.2, 0.2]
                     }
                 ],

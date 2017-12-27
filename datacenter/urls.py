@@ -33,6 +33,7 @@ urlpatterns = [
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     url(r'^admin/', admin.site.urls),
     url(r'^index/$', views.test),
+    url(r'^diagram/(?P<pk>\S+)$', views.diagrapm),
     url(r'^echart/$', views.echart_test),
     url(r'^socket/$', views.socket_test),
     url(r'^humiditys/$', views.humidity_list),

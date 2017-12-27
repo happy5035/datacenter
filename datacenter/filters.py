@@ -19,6 +19,7 @@ class TemperatureFilter(django_filters.FilterSet):
     min_temp_value = filters.NumberFilter(name='temp_value', lookup_expr='gte')
     max_temp_value = filters.NumberFilter(name='temp_value', lookup_expr='lte')
     temp_time = filters.DateTimeFromToRangeFilter(name='temp_time')
+    end_device_id = filters.CharFilter(field_name='end_device__end_device_id')
 
     class Meta:
         model = Temperature

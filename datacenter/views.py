@@ -18,12 +18,20 @@ from django_filters.rest_framework import DjangoFilterBackend
 def test(request):
     return render(request, 'index1.html')
     pass
+
+
 def echart_test(request):
-    return render(request,'test.html')
+    return render(request, 'test.html')
 
 
 def socket_test(request):
     return render(request, 'socket.html')
+
+
+def diagrapm(request, pk):
+    data = {'end_device_id': pk}
+    # return render(request, 'hello.html', data)
+    return render(request, 'end_device_diagram.html', data)
 
 
 class HumidityList(generics.ListAPIView):

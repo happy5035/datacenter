@@ -8,14 +8,16 @@
     <link href="{% static 'asset/css/bootstrap.css' %}">
     <link href="{% static 'asset/css/echartsHome.css' %}">
     <!-- ECharts单文件引入 -->
-    <script src="{% static 'js/echarts.js' %}"></script>
+{#    <script src="{% static 'js/echarts.js' %}"></script>#}
     <script src="{% static 'asset/js/jquery.min.js' %}"></script>
     <script src="{% static 'asset/js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'js/theme/macarons.js' %}"></script>
 
 
     <script src="{% static 'js/date_format.js' %}"></script>
 </head>
 <body>
+<input id="end_device_id" type="hidden" value="{{ end_device_id }}">
 <!-- 为ECharts准备一个具备大小（宽高）的Dom -->
 <div class="container-fluid">
     <div class="row-fluid example">
@@ -27,17 +29,20 @@
 </div>
 <div id="main1" style="height: 400px"></div>
 <script type="text/javascript">
-    var myChart = echarts.init(document.getElementById('main'), 'macarons');
+    var temChart = echarts.init(document.getElementById('main'),'macarons');
 
+    var e_id = document.getElementById('end_device_id').value;
     var start_time = new Date();
-    start_time.setHours(start_time.getHours() - 1);
+    start_time.setHours(start_time.getHours() - 24);
     start_time = start_time.Format('yyyy-MM-dd hh:mm:ss');
     var end_time = new Date();
     end_time = end_time.Format('yyyy-MM-dd hh:mm:ss');
+    console.log(start_time, end_time)
     var yDatas = [];
     var params = {
         temp_time_0: start_time,
-        temp_time_1: end_time
+        temp_time_1: end_time,
+        end_device_id: e_id
     };
 
     function load_data(success) {
@@ -60,12 +65,19 @@
 
     option = {
         title: {
-            text: '动态温度数据'
+            text: '实时温度数据',
+            textStyle: {
+                fontSize: 28,
+                align: 'center'
+            },
+            x: 'center'
         },
         tooltip: {
             trigger: 'axis',
             axisPointer: {
-                animation: false
+                type:'cross',
+                animation: true,
+                link: {xAxisIndex: 'all'}
             }
         },
         toolbox: {
@@ -81,31 +93,35 @@
             {
                 show: true,
                 realtime: true,
-                start: 70,
+                start: 0,
                 end: 100,
             },
             {
                 type: 'inside',
                 realtime: true,
-                start: 70,
+                start: 0,
                 end: 100,
             }
         ],
         xAxis: {
+            name: '时间',
             type: 'time',
             splitLine: {
-                show: false
+                show: true
             }
         },
         yAxis: {
+            name: '温度值/℃',
             type: 'value',
+            min: 0.0,
+            max: 50.0,
             boundaryGap: [0.2, 0.2],
             splitLine: {
                 show: true
             }
         },
         series: [{
-            name: '温度',
+            name: '温度数据',
             type: 'line',
             showSymbol: false,
             hoverAnimation: false,
@@ -123,10 +139,11 @@
         };
         load_data(function (data) {
             $.each(data, function (idx, _data) {
-                yDatas.shift();
+                if (yDatas && yDatas.length > 2000)//一天的数据
+                    yDatas.shift();
                 yDatas.push(_data);
-                myChart.hideLoading();
-                myChart.setOption({
+                temChart.hideLoading();
+                temChart.setOption({
                     series: [
                         {
                             data: yDatas
@@ -137,13 +154,13 @@
 
         });
 
-    }, 5000); // 使用刚指定的配置项和数据显示图表。
+    }, 60000); // 使用刚指定的配置项和数据显示图表。
     load_data(function (data) {
         $.each(data, function (idx, _data) {
             yDatas.push(_data)
         });
-        myChart.hideLoading();
-        myChart.setOption({
+        temChart.hideLoading();
+        temChart.setOption({
             series: [
                 {
                     data: yDatas
@@ -151,6 +168,6 @@
             ]
         });
     });
-    myChart.setOption(option);
+    temChart.setOption(option);
 </script>
 </body>
