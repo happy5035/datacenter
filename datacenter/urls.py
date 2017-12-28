@@ -34,6 +34,8 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^index/$', views.test),
     url(r'^diagram/(?P<pk>\S+)$', views.diagrapm),
+    url(r'^3d/(?P<pk>\S+)$', views.diagrapm_3D),
+    url(r'^nodes', views.nodes),
     url(r'^echart/$', views.echart_test),
     url(r'^socket/$', views.socket_test),
     url(r'^humiditys/$', views.humidity_list),

@@ -34,6 +34,16 @@ def diagrapm(request, pk):
     return render(request, 'end_device_diagram.html', data)
 
 
+def diagrapm_3D(request, pk):
+    data = {'end_device_id': pk}
+    # return render(request, 'hello.html', data)
+    return render(request, 'end_device_3d.html', data)
+
+
+def nodes(request):
+    return render(request, 'end_device_nodes.html')
+
+
 class HumidityList(generics.ListAPIView):
     queryset = Humidity.objects.all().order_by('humi_time')
     serializer_class = HumiditySerializer

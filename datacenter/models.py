@@ -11,7 +11,7 @@ class EndDevice(models.Model):
     end_device_id = models.CharField(max_length=16, db_column='end_device_id', primary_key=True)
     ext_addr = models.CharField(max_length=16, db_column='ext_addr')
     net_addr = models.CharField(max_length=4, db_column='net_addr')
-    name = models.CharField(max_length=255, db_column='name')
+    name = models.CharField(max_length=255, db_column='name', default='')
     start_time = models.DateTimeField(db_column='start_time')
     hum_freq = models.IntegerField(db_column='hum_freq')
     temp_freq = models.IntegerField(db_column='temp_freq')
@@ -20,6 +20,7 @@ class EndDevice(models.Model):
     temp = models.FloatField(db_column='temp')
     hum = models.FloatField(db_column='hum')
     update_time = models.DateTimeField(db_column='update_time')
+    code = models.IntegerField()
 
 
 class Temperature(models.Model):
@@ -40,6 +41,37 @@ class Humidity(models.Model):
     end_device = models.ForeignKey(EndDevice)
     humi_value = models.FloatField(db_column='humi_value')
     humi_time = models.DateTimeField(db_column='humi_time')
+
+
+class Room(models.Model):
+    class Meta:
+        db_table = 'room'
+
+    room_id = models.IntegerField(primary_key=True, db_column='room_id')
+    room_name = models.CharField(db_column='room_name', max_length=255)
+    room_size = models.IntegerField(db_column='room_size')
+    room_x = models.IntegerField(db_column='room_x')
+    room_y = models.FloatField(db_column='room_y')
+    room_z = models.FloatField(db_column='room_z')
+    room_x_nums = models.IntegerField(db_column='room_x_nums')
+    room_y_nums = models.IntegerField(db_column='room_y_nums')
+    room_pos = models.CharField(db_column='room_pos', max_length=255)
+
+
+class EndDeviceInfo(models.Model):
+    class Meta:
+        db_table = 'end_device_info'
+
+    end_device_info_id = models.AutoField(primary_key=True, db_column='end_device_info_id')
+    room = models.ForeignKey(Room)
+    end_device_code = models.IntegerField()
+    end_device = models.ForeignKey(EndDevice)
+    x_pos_name = models.CharField(max_length=255)
+    x_pos_value = models.IntegerField()
+    y_pos_name = models.CharField(max_length=255)
+    y_pos_value = models.IntegerField()
+    z_temp_name = models.CharField(max_length=255)
+    z_temp_value = models.IntegerField()
 
 
 from pygments.lexers import get_all_lexers
