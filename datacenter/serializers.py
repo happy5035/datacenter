@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.contrib.auth.models import User, Group
 from rest_framework import serializers
-from datacenter.models import EndDevice, Humidity, Temperature, Snippet
+from datacenter.models import *
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
@@ -30,11 +30,19 @@ class TemperatureSerializer(serializers.ModelSerializer):
         fields = ('temp_id', 'temp_time', 'temp_value')
 
 
+class EndDeviceInfoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = EndDeviceInfo
+        fields = ( '__all__')
+
+
 class EndDeviceSerializer(serializers.ModelSerializer):
+    info = EndDeviceInfoSerializer(many=True)
+
     class Meta:
         model = EndDevice
         fields = (
-            'end_device_id', 'net_addr', 'ext_addr', 'name', 'voltage', 'start_time', 'hum_freq', 'temp_freq', 'status')
+            '__all__')
 
 
 class SnippetSerializer(serializers.ModelSerializer):

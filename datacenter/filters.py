@@ -39,3 +39,9 @@ class EndDeviceFilter(django_filters.FilterSet):
     class Meta:
         model = EndDevice
         fields = ['ext_addr', 'net_addr', 'status', 'voltage', 'hum_freq', 'temp_freq', 'start_time']
+
+
+class EndDeviceInfoFilter(django_filters.FilterSet):
+    class Meta:
+        model = EndDeviceInfo
+        fields = []

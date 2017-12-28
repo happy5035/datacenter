@@ -50,4 +50,5 @@ urlpatterns = [
     url(r'^temperatures1/(?P<pk>\S+)/$', views.TemperatureDetial.as_view()),
     url(r'^end_devices1/$', views.EndDeviceList.as_view()),
     url(r'^end_devices1/(?P<pk>\S+)/$', views.EndDeviceDetial.as_view()),
+    url(r'^end_devices_info/$', views.EndDeviceInfoList.as_view()),
 ]

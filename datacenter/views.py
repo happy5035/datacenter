@@ -1,18 +1,12 @@
 # -*- coding: utf-8 -*-
 from django.shortcuts import render
 import django_filters.rest_framework
-from django.contrib.auth.models import User, Group
 from rest_framework import viewsets
 from datacenter.serializers import *
-from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse, HttpResponse
-from rest_framework.renderers import JSONRenderer
 from rest_framework.parsers import JSONParser
-from rest_framework.views import APIView
-from rest_framework import mixins
 from rest_framework import generics
 from datacenter.filters import *
-from django_filters.rest_framework import DjangoFilterBackend
 
 
 def test(request):
@@ -63,7 +57,15 @@ class EndDeviceList(generics.ListAPIView):
     queryset = EndDevice.objects.all()
     serializer_class = EndDeviceSerializer
     filter_backends = (django_filters.rest_framework.DjangoFilterBackend,)
-    filter_class = EndDeviceFilter
+
+
+class EndDeviceInfoList(generics.ListAPIView):
+    queryset = EndDeviceInfo.objects.all()
+    serializer_class = EndDeviceInfoSerializer
+    filter_backends = (django_filters.rest_framework.DjangoFilterBackend,)
+    filter_class = EndDeviceInfoFilter
+
+    pass
 
 
 class HumidityDetial(generics.RetrieveUpdateDestroyAPIView):

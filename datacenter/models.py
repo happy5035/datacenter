@@ -65,13 +65,14 @@ class EndDeviceInfo(models.Model):
     end_device_info_id = models.AutoField(primary_key=True, db_column='end_device_info_id')
     room = models.ForeignKey(Room)
     end_device_code = models.IntegerField()
-    end_device = models.ForeignKey(EndDevice)
+    end_device = models.ForeignKey(EndDevice, related_name='info')
     x_pos_name = models.CharField(max_length=255)
     x_pos_value = models.IntegerField()
     y_pos_name = models.CharField(max_length=255)
     y_pos_value = models.IntegerField()
     z_temp_name = models.CharField(max_length=255)
     z_temp_value = models.IntegerField()
+    status = models.IntegerField()
 
 
 from pygments.lexers import get_all_lexers

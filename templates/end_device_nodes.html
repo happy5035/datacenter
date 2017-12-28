@@ -8,27 +8,45 @@
     <link href="{% static 'asset/css/bootstrap.css' %}">
     <link href="{% static 'asset/css/echartsHome.css' %}">
     <!-- ECharts单文件引入 -->
-    {#    <script src="{% static 'js/echarts.js' %}"></script>#}
     <script src="{% static 'asset/js/jquery.min.js' %}"></script>
     <script src="{% static 'asset/js/bootstrap.min.js' %}"></script>
-    <script src="{% static 'js/theme/macarons.js' %}"></script>
 
 
     <script src="{% static 'js/date_format.js' %}"></script>
 </head>
 <body>
 <!-- 为ECharts准备一个具备大小（宽高）的Dom -->
-<div class="container-fluid">
-    <div class="row-fluid example">
-        <div id="graphic" class="col-md-8">
-            <div id="main" style="height:800px"></div>
-        </div>
-
-    </div>
-</div>
-<div id="main1" style="height: 400px"></div>
+<div id="main" style="height: 800px"></div>
 <script type="text/javascript">
-    var temChart = echarts.init(document.getElementById('main'), 'macarons');
+    var myChart = echarts.init(document.getElementById('main'));
+    var params = {};
+
+    function exchange_net_addr(addr) {
+        return (addr.substring(2, 4) + addr.substring(0, 2)).toUpperCase()
+    }
+
+    function load_data(success) {
+        $.getJSON('/end_devices1', params, function (result) {
+            var datas = [];
+
+            $.each(result, function (idx, res) {
+                var info = {};
+                res.info && res.info.length && (info = res.info[0]);
+                var dat = {};
+                dat = {
+                    id: '' + res.code,
+                    name: '0x' + exchange_net_addr(res.net_addr),
+                    code:'' + res.code,
+                    value: res.temp,
+                    x: info.x_pos_value,
+                    y: info.y_pos_value
+                };
+                datas.push(dat)
+            });
+            success(datas)
+        });
+
+    }
 
     option = {
         title: {
@@ -42,11 +60,26 @@
                 type: 'graph',
                 layout: 'none',
                 symbolSize: 50,
+                draggable: true,
                 roam: true,
                 label: {
                     normal: {
-                        show: true
+                        formatter: function (params) {
+                            return ['{a|' + params.data.code + '}', '{b|' + params.value.toFixed(2) + '℃' + '}'].join('\n')
+                        },
+                        show: true,
+                        rich: {
+                            a: {
+                                color: 'blue',
+                                align: 'center'
+                            },
+                            b: {
+                                color: 'yellow',
+                                align: 'center'
+                            }
+                        }
                     }
+
                 },
                 edgeSymbol: ['circle', 'arrow'],
                 edgeSymbolSize: [4, 10],
@@ -54,76 +87,37 @@
                     normal: {
                         textStyle: {
                             fontSize: 20
-                        }
+                        },
+                        show: false
                     }
                 },
-                data: [{
-                    name: '节点1',
-                    x: 300,
-                    y: 300
-                }, {
-                    name: '节点2',
-                    x: 800,
-                    y: 300
-                }, {
-                    name: '节点3',
-                    x: 550,
-                    y: 100
-                }, {
-                    name: '节点4',
-                    x: 550,
-                    y: 500
-                }],
+                data: []
                 // links: [],
-                links: [{
-                    source: 0,
-                    target: 1,
-                    symbolSize: [5, 20],
-                    label: {
-                        normal: {
-                            show: true
-                        }
-                    },
-                    lineStyle: {
-                        normal: {
-                            width: 5,
-                            curveness: 0.2
-                        }
-                    }
-                }, {
-                    source: '节点2',
-                    target: '节点1',
-                    label: {
-                        normal: {
-                            show: true
-                        }
-                    },
-                    lineStyle: {
-                        normal: {curveness: 0.2}
-                    }
-                }, {
-                    source: '节点1',
-                    target: '节点3'
-                }, {
-                    source: '节点2',
-                    target: '节点3'
-                }, {
-                    source: '节点2',
-                    target: '节点4'
-                }, {
-                    source: '节点1',
-                    target: '节点4'
-                }],
-                lineStyle: {
-                    normal: {
-                        opacity: 0.9,
-                        width: 2,
-                        curveness: 0
-                    }
-                }
+
             }
         ]
     };
-    temChart.setOption(option);
+
+
+    myChart.setOption(option);
+    load_data(function (datas) {
+            myChart.setOption({
+                series: [
+                    {
+                        data: datas
+                    }
+                ]
+            })
+        });
+    setInterval(function () {
+        load_data(function (datas) {
+            myChart.setOption({
+                series: [
+                    {
+                        data: datas
+                    }
+                ]
+            })
+        });
+    }, 60000)
 </script>
-</body>
