@@ -25,23 +25,91 @@
         return (addr.substring(2, 4) + addr.substring(0, 2)).toUpperCase()
     }
 
+    var id_update_time = {};
+    var nomal_color = {
+        normal: {
+            color: {
+                type: 'radial',
+                x: 0.5,
+                y: 0.5,
+                r: 0.5,
+                colorStops: [{
+                    offset: 1, color: '#f01215' // 100% 处的颜色
+                }, {
+                    offset: 0, color: '#f5bdc5' // 0% 处的颜色
+                }],
+                globalCoord: false // 缺省为 false
+            }
+        }
+    }
+    var balc_color = {
+        normal: {
+            color: {
+                type: 'radial',
+                x: 0.5,
+                y: 0.5,
+                r: 0.5,
+                colorStops: [{
+                    offset: 1, color: '#452f30' // 100% 处的颜色
+                }, {
+                    offset: 0, color: '#452f30' // 0% 处的颜色
+                }],
+                globalCoord: false // 缺省为 false
+            }
+        }
+    }
+
     function load_data(success) {
         $.getJSON('/end_devices1', params, function (result) {
             var datas = [];
-
+            var old_datas = option.series[0].data;
             $.each(result, function (idx, res) {
                 var info = {};
                 res.info && res.info.length && (info = res.info[0]);
-                var dat = {};
-                dat = {
-                    id: '' + res.code,
+                var dat = {
+                    id: res.code,
                     name: '0x' + exchange_net_addr(res.net_addr),
-                    code:'' + res.code,
+                    code: '' + res.code,
                     value: res.temp,
                     x: info.x_pos_value,
-                    y: info.y_pos_value
+                    y: info.y_pos_value,
+                    symbolSize: 80,
+                    label: {
+                        normal: {
+                            formatter: function (params) {
+                                return ['{a|' + params.data.code + '}', '{b|' + params.value.toFixed(2) + '℃' + '}'].join('\n')
+                            },
+                            show: true,
+                            rich: {
+                                a: {
+                                    color: 'blue',
+                                    align: 'center',
+                                    fontSize: 14
+                                },
+                                b: {
+                                    color: 'yellow',
+                                    align: 'center',
+                                    fontSize: 14
+                                }
+                            }
+                        }
+
+                    },
+                    itemStyle: nomal_color
                 };
-                datas.push(dat)
+
+                if (id_update_time[res.code] && (new Date(res.update_time).getTime() !== new Date(id_update_time[res.code]).getTime())) {
+                    dat.label.normal.rich.a.fontSize = 20;
+                    dat.label.normal.rich.b.fontSize = 20;
+                    dat.symbolSize = 120;
+                    dat.itemStyle = nomal_color
+                } else {
+                    if ((new Date().getTime() - new Date(res.update_time).getTime()) >= 5 * 60 * 1000) {
+                        dat.itemStyle = balc_color
+                    }
+                }
+                datas.push(dat);
+                id_update_time[res.code] = res.update_time;
             });
             success(datas)
         });
@@ -59,28 +127,10 @@
             {
                 type: 'graph',
                 layout: 'none',
-                symbolSize: 50,
+                symbolSize: 80,
                 draggable: true,
                 roam: true,
-                label: {
-                    normal: {
-                        formatter: function (params) {
-                            return ['{a|' + params.data.code + '}', '{b|' + params.value.toFixed(2) + '℃' + '}'].join('\n')
-                        },
-                        show: true,
-                        rich: {
-                            a: {
-                                color: 'blue',
-                                align: 'center'
-                            },
-                            b: {
-                                color: 'yellow',
-                                align: 'center'
-                            }
-                        }
-                    }
-
-                },
+                animationDuration: 100,
                 edgeSymbol: ['circle', 'arrow'],
                 edgeSymbolSize: [4, 10],
                 edgeLabel: {
@@ -101,23 +151,27 @@
 
     myChart.setOption(option);
     load_data(function (datas) {
-            myChart.setOption({
-                series: [
-                    {
-                        data: datas
-                    }
-                ]
-            })
-        });
+        myChart.setOption({
+            series: [
+                {
+                    data: datas
+                }
+            ]
+        })
+    });
     setInterval(function () {
         load_data(function (datas) {
-            myChart.setOption({
-                series: [
-                    {
-                        data: datas
-                    }
-                ]
-            })
+            option.series[0].data = datas;
+            myChart.setOption(option);
+            setTimeout(function () {
+                $.each(datas, function (idx, val) {
+                    datas[idx].label.normal.rich.a.fontSize = 14;
+                    datas[idx].label.normal.rich.b.fontSize = 14;
+                    datas[idx].symbolSize = 80;
+                    option.series[0].data = datas;
+                    myChart.setOption(option);
+                });
+            }, 1000)
         });
-    }, 60000)
+    }, 5000)
 </script>
