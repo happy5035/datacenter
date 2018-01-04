@@ -14,6 +14,17 @@ def test(request):
     pass
 
 
+def end_device_tooltip(request, pk):
+    end_device = EndDevice.objects.filter(end_device_id=pk).first()
+    end_device.update_time = end_device.update_time.strftime('%Y-%m-%d %H:%M:%S')
+    end_device.net_addr = end_device.net_addr.upper()
+    end_device.net_addr = '0X%s%s' % (end_device.net_addr[2:], end_device.net_addr[:2])
+    ed_info = EndDeviceInfo.objects.filter(end_device_id=end_device.end_device_id).first()
+
+    return render(request, 'end_device_tooltip.html', {'ed': end_device, 'info': ed_info})
+    pass
+
+
 def echart_test(request):
     return render(request, 'test.html')
 

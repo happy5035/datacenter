@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    {% load staticfiles %}
+</head>
+<body>
+<table class="table">
+    <tbody>
+    <tr>
+        <td>编号</td>
+        <td>{{ ed.code }}</td>
+    </tr>
+    <tr>
+        <td>网络地址</td>
+        <td>{{ ed.net_addr }}</td>
+    </tr>
+    <tr>
+        <td>电压</td>
+        <td>{{ ed.voltage }} V</td>
+    </tr>
+    <tr>
+        <td>温度</td>
+        <td>{{ ed.temp }} ℃</td>
+    </tr>
+
+    <tr>
+        <td>采集频率</td>
+        <td>{{ ed.temp_freq }} 秒</td>
+    </tr>
+    <tr>
+        <td>更新时间</td>
+        <td>{{ ed.update_time }}</td>
+    </tr>
+    <tr>
+        <td>坐标X</td>
+        <td>{{ info.x_pos_value }}</td>
+    </tr>
+    <tr>
+        <td>坐标Y</td>
+        <td>{{ info.y_pos_value }}</td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>

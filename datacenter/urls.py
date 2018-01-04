@@ -51,4 +51,5 @@ urlpatterns = [
     url(r'^end_devices1/$', views.EndDeviceList.as_view()),
     url(r'^end_devices1/(?P<pk>\S+)/$', views.EndDeviceDetial.as_view()),
     url(r'^end_devices_info/$', views.EndDeviceInfoList.as_view()),
+    url(r'^enddevice_tooltip/(?P<pk>\S+)$', views.end_device_tooltip),
 ]
