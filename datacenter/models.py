@@ -25,6 +25,7 @@ class EndDevice(models.Model):
     lqi = models.IntegerField()
     parent = models.CharField(max_length=4, db_column='parent')
     time_window = models.IntegerField(db_column='time_window')
+    e_type = models.IntegerField(db_column='type')
 
 
 class Temperature(models.Model):
