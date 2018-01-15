@@ -142,7 +142,7 @@
                                 if(res.e_type == 3){
                                     return ['{a|' + params.data.code + '}', '{b|' + params.value.toFixed(2) + '℃' + '}'].join('\n')
                                 }else{
-                                     return ['{a|' + params.data.name + '}'].join('\n')
+                                     return ['{a|' + params.data.code + '}'].join('\n')
 
                                 }
                             },
@@ -204,7 +204,7 @@
                     if(_data.e_type == 3)
                         return "<body><table class='table'><tbody><tr><td>编号</td><td> " + _data.code + " </td></tr><tr><td>网络地址</td><td> " + net + " </td></tr><tr><td>电压</td><td> " + _data.voltage + "  V</td></tr><tr><td>温度</td><td> " + _data.temp + "  ℃</td></tr><tr><td>采集频率</td><td> " + _data.temp_freq + " 秒</td></tr><tr><td>更新时间</td><td> " + _data.update_time.substring(11, 19) + " </td></tr><tr><td>RSSI</td><td> " + _data.rssi + " </td></tr><tr><td>LQI</td><td> " + _data.lqi + " </td></tr></tbody></table>";
                     if(_data.e_type == 2)
-                        return "<body><table class='table'><tbody><tr><td>编号</td><td> " + _data.code + " </td></tr><tr><td>网络地址</td><td> " + net  + _data.rssi + " </td></tr><tr><td>LQI</td><td> " + _data.lqi + " </td></tr></tbody></table>";
+                        return "<body><table class='table'><tbody><tr><td>编号</td><td> " + _data.code + " </td></tr><tr><td>网络地址</td><td> " + net+ " </td></tr><tr><td>RSSI</td><td> "  + _data.rssi + " </td></tr><tr><td>LQI</td><td> " + _data.lqi + " </td></tr></tbody></table>";
 
                     {#                return "<table class='table'>" +#}
 
