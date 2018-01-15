@@ -21,6 +21,10 @@ class EndDevice(models.Model):
     hum = models.FloatField(db_column='hum')
     update_time = models.DateTimeField(db_column='update_time')
     code = models.IntegerField()
+    rssi = models.IntegerField()
+    lqi = models.IntegerField()
+    parent = models.CharField(max_length=4, db_column='parent')
+    time_window = models.IntegerField(db_column='time_window')
 
 
 class Temperature(models.Model):
