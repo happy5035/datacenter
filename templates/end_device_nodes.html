@@ -1,33 +1,53 @@
 <!DOCTYPE html>
+
 <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta charset="utf-8">
     <title>ECharts</title>
     {% load staticfiles %}
     {% load staticfiles %}
     <script src="{% static 'js/echarts.min.js' %}"></script>
-    <link href="{% static 'asset/css/bootstrap.min.css' %}" rel="stylesheet">
-    <link href="{% static 'asset/css/echartsHome.css' %}" rel="stylesheet">
-    <!-- ECharts单文件引入 -->
     <script src="{% static 'asset/js/jquery.min.js' %}"></script>
-    <script src="{% static 'asset/js/bootstrap.min.js' %}"></script>
-
-
     <script src="{% static 'js/date_format.js' %}"></script>
-</head>
-<body style="padding-top: 0px">
-<!-- 为ECharts准备一个具备大小（宽高）的Dom -->
-<div class="container-fluid">
-    <div class="row-fluid example">
-        <div id="graphic" class="col-md-8">
-            <div id="main" style="height:800px"></div>
-        </div>
 
+    <link href="{% static 'dist/css/bootstrap.min.css' %}" rel="stylesheet">
+    <link href="{% static 'grid.css' %}" rel="stylesheet">
+
+
+</head>
+<body>
+<!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+{#<div class="container-fluid">#}
+{#    <div class="row-fluid">#}
+{#        <div class="col-md-2">#}
+{#            <div>测试sssss</div>#}
+{#        </div>#}
+{#        <div class="col-xs-2">#}
+{#            <div id="main1" style="height:100% ;width: 100%"></div>#}
+{#        </div>#}
+{#    </div>#}
+{#</div>#}
+{#<div id="main" style="height:100% "></div>#}
+<div class="container">
+    <div class="page-header">
+        <h1>采集节点展示</h1>
     </div>
+    <div class="row">
+        <div class="col-md-12" style="height:800px ">
+            <div id="main" style="height:100% ">
+        </div>
+      </div>
 </div>
 <script type="text/javascript">
+
     var myChart = echarts.init(document.getElementById('main'));
     var params = {};
     var index_node_id = {}
+    window.onresize = function () {
+        myChart.resize();
+    };
 
     function exchange_net_addr(addr) {
         return (addr.substring(2, 4) + addr.substring(0, 2)).toUpperCase()
@@ -109,10 +129,10 @@
                 res.info && res.info.length && (info = res.info[0]);
                 var link_value = 1;
                 var symbolSize = 80;
-                if(res.e_type == 3){
+                if (res.e_type == 3) {
                     link_value = 2;
                     symbolSize = 40
-                }else if(res.e_type == 2){
+                } else if (res.e_type == 2) {
                     link_value = 1;
                     symbolSize = 80
                 }
@@ -125,7 +145,7 @@
                             width: 2
                         }
                     },
-                    value:link_value
+                    value: link_value
                 };
                 links.push(link);
                 var dat = {
@@ -139,10 +159,10 @@
                     label: {
                         normal: {
                             formatter: function (params) {
-                                if(res.e_type == 3){
+                                if (res.e_type == 3) {
                                     return ['{a|' + params.data.code + '}', '{b|' + params.value.toFixed(2) + '℃' + '}'].join('\n')
-                                }else{
-                                     return ['{a|' + params.data.code + '}'].join('\n')
+                                } else {
+                                    return ['{a|' + params.data.code + '}'].join('\n')
 
                                 }
                             },
@@ -164,7 +184,7 @@
                     },
                     itemStyle: nomal_color
                 };
-                if(res.e_type == 3){
+                if (res.e_type == 3) {
 
                     if (id_update_time[res.code] && (new Date(res.update_time).getTime() !== new Date(id_update_time[res.code]).getTime())) {
                         dat.label.normal.rich.a.fontSize = 20;
@@ -188,7 +208,7 @@
 
     option = {
         title: {
-            text: 'Graph 简单示例'
+{#            text: 'Graph 简单示例'#}
         },
         tooltip: {
             formatter: function (params, ticket, callback) {
@@ -201,10 +221,10 @@
                     net = net.toUpperCase();
                     net = '0X' +
                         '' + net.substring(2, 4) + net.substring(0, 2);
-                    if(_data.e_type == 3)
+                    if (_data.e_type == 3)
                         return "<body><table class='table'><tbody><tr><td>编号</td><td> " + _data.code + " </td></tr><tr><td>网络地址</td><td> " + net + " </td></tr><tr><td>电压</td><td> " + _data.voltage + "  V</td></tr><tr><td>温度</td><td> " + _data.temp + "  ℃</td></tr><tr><td>采集频率</td><td> " + _data.temp_freq + " 秒</td></tr><tr><td>更新时间</td><td> " + _data.update_time.substring(11, 19) + " </td></tr><tr><td>RSSI</td><td> " + _data.rssi + " </td></tr><tr><td>LQI</td><td> " + _data.lqi + " </td></tr></tbody></table>";
-                    if(_data.e_type == 2)
-                        return "<body><table class='table'><tbody><tr><td>编号</td><td> " + _data.code + " </td></tr><tr><td>网络地址</td><td> " + net+ " </td></tr><tr><td>RSSI</td><td> "  + _data.rssi + " </td></tr><tr><td>LQI</td><td> " + _data.lqi + " </td></tr></tbody></table>";
+                    if (_data.e_type == 2)
+                        return "<body><table class='table'><tbody><tr><td>编号</td><td> " + _data.code + " </td></tr><tr><td>网络地址</td><td> " + net + " </td></tr><tr><td>RSSI</td><td> " + _data.rssi + " </td></tr><tr><td>LQI</td><td> " + _data.lqi + " </td></tr></tbody></table>";
 
                     {#                return "<table class='table'>" +#}
 
@@ -225,7 +245,7 @@
 
                     repulsion: 200,
                     gravity: 0.02,
-                    edgeLength: [100,300],
+                    edgeLength: [100, 300],
 
                 },
 
@@ -284,3 +304,5 @@
         });
     }, 5000)
 </script>
+</body>
+</html>

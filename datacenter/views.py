@@ -65,7 +65,7 @@ class TemperatureList(generics.ListAPIView):
 
 
 class EndDeviceList(generics.ListAPIView):
-    queryset = EndDevice.objects.filter(code__gte=20)
+    queryset = EndDevice.objects.all()
     serializer_class = EndDeviceSerializer
     filter_backends = (django_filters.rest_framework.DjangoFilterBackend,)
 
