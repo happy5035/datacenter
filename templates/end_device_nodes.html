@@ -45,9 +45,6 @@
     var myChart = echarts.init(document.getElementById('main'));
     var params = {};
     var index_node_id = {}
-    window.onresize = function () {
-        myChart.resize();
-    };
 
     function exchange_net_addr(addr) {
         return (addr.substring(2, 4) + addr.substring(0, 2)).toUpperCase()
@@ -289,6 +286,7 @@
             option.series[0].data = datas;
             option.series[0].links = links;
             myChart.setOption(option);
+            window.onresize =  myChart.resize;
             setTimeout(function () {
                 $.each(datas, function (idx, val) {
                     if (datas.label) {

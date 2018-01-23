@@ -24,26 +24,26 @@ class HumiditySerializer(serializers.ModelSerializer):
     pass
 
 
-class TemperatureSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Temperature
-        fields = ('temp_id', 'temp_time', 'temp_value')
-
 
 class EndDeviceInfoSerializer(serializers.ModelSerializer):
     class Meta:
         model = EndDeviceInfo
-        fields = ( '__all__')
+        fields = ('__all__')
 
 
 class EndDeviceSerializer(serializers.ModelSerializer):
-    info = EndDeviceInfoSerializer(many=True)
 
     class Meta:
         model = EndDevice
         fields = (
             '__all__')
 
+
+class TemperatureSerializer(serializers.ModelSerializer):
+    end_device = EndDeviceSerializer()
+    class Meta:
+        model = Temperature
+        fields = ('__all__')
 
 class SnippetSerializer(serializers.ModelSerializer):
     class Meta:

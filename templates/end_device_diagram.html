@@ -134,7 +134,8 @@
         end_time = end_time.Format('yyyy-MM-dd hh:mm:ss');
         params = {
             temp_time_0: start_time,
-            temp_time_1: end_time
+            temp_time_1: end_time,
+            end_device_id: e_id
         };
         load_data(function (data) {
             $.each(data, function (idx, _data) {
