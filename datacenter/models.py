@@ -4,10 +4,42 @@ from django.db import models
 __author__ = 'XJTU_YJW'
 
 
+class Room(models.Model):
+    class Meta:
+        db_table = 'room'
+
+    room_id = models.IntegerField(primary_key=True, db_column='room_id')
+    room_name = models.CharField(db_column='room_name', max_length=255)
+    room_size = models.IntegerField(db_column='room_size')
+    room_x = models.IntegerField(db_column='room_x')
+    room_y = models.FloatField(db_column='room_y')
+    room_z = models.FloatField(db_column='room_z')
+    room_x_nums = models.IntegerField(db_column='room_x_nums')
+    room_y_nums = models.IntegerField(db_column='room_y_nums')
+    room_pos = models.CharField(db_column='room_pos', max_length=255)
+
+
+class RoomAxis(models.Model):
+    class Meta:
+        db_table = 'room_axis'
+
+    room_axis_id = models.AutoField(primary_key=True, auto_created=True)
+    room = models.ForeignKey(Room)
+    x_num = models.IntegerField()
+    x_value = models.IntegerField()
+    y_num = models.IntegerField()
+    y_value = models.IntegerField()
+    z_num = models.IntegerField()
+    z_value = models.IntegerField()
+    note = models.CharField(max_length=255)
+    pass
+
+
 class EndDevice(models.Model):
     class Meta:
         db_table = 'end_device'
 
+    axis = models.ForeignKey(RoomAxis)
     end_device_id = models.CharField(max_length=16, db_column='end_device_id', primary_key=True)
     ext_addr = models.CharField(max_length=16, db_column='ext_addr')
     net_addr = models.CharField(max_length=4, db_column='net_addr')
@@ -48,21 +80,6 @@ class Humidity(models.Model):
     humi_time = models.DateTimeField(db_column='humi_time')
 
 
-class Room(models.Model):
-    class Meta:
-        db_table = 'room'
-
-    room_id = models.IntegerField(primary_key=True, db_column='room_id')
-    room_name = models.CharField(db_column='room_name', max_length=255)
-    room_size = models.IntegerField(db_column='room_size')
-    room_x = models.IntegerField(db_column='room_x')
-    room_y = models.FloatField(db_column='room_y')
-    room_z = models.FloatField(db_column='room_z')
-    room_x_nums = models.IntegerField(db_column='room_x_nums')
-    room_y_nums = models.IntegerField(db_column='room_y_nums')
-    room_pos = models.CharField(db_column='room_pos', max_length=255)
-
-
 class EndDeviceInfo(models.Model):
     class Meta:
         db_table = 'end_device_info'
@@ -80,21 +97,19 @@ class EndDeviceInfo(models.Model):
     status = models.IntegerField()
 
 
-from pygments.lexers import get_all_lexers
-from pygments.styles import get_all_styles
-
-LEXERS = [item for item in get_all_lexers() if item[1]]
-LANGUAGE_CHOICES = sorted([(item[1][0], item[0]) for item in LEXERS])
-STYLE_CHOICES = sorted((item, item) for item in get_all_styles())
-
-
-class Snippet(models.Model):
-    created = models.DateTimeField(auto_now_add=True)
-    title = models.CharField(max_length=100, blank=True, default='')
-    code = models.TextField()
-    linenos = models.BooleanField(default=False)
-    language = models.CharField(choices=LANGUAGE_CHOICES, default='python', max_length=100)
-    style = models.CharField(choices=STYLE_CHOICES, default='friendly', max_length=100)
-
+class NetParam(models.Model):
     class Meta:
-        ordering = ('created',)
+        db_table = 'net_param'
+
+    net_param_id = models.AutoField(primary_key=True)
+    panid = models.CharField(max_length=4)
+    pv = models.IntegerField()
+    chanel = models.IntegerField()
+    temp_freq = models.IntegerField()
+    hum_freq = models.IntegerField()
+    packet_freq = models.IntegerField()
+    clock_freq = models.IntegerField()
+    time_window_internal = models.IntegerField()
+
+
+    pass

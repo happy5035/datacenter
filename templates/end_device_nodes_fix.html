@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="utf-8">
+    <title>ECharts</title>
+    {% load staticfiles %}
+    {% load staticfiles %}
+    <script src="{% static 'js/echarts.min.js' %}"></script>
+    <script src="{% static 'asset/js/jquery.min.js' %}"></script>
+    <script src="{% static 'js/date_format.js' %}"></script>
+
+    <link href="{% static 'dist/css/bootstrap.min.css' %}" rel="stylesheet">
+    <link href="{% static 'grid.css' %}" rel="stylesheet">
+
+
+</head>
+<body>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-8" style="height:1000px ">
+            <h2>采集节点展示</h2>
+            <br/>
+            <div id="main" style="height:100% ">
+            </div>
+        </div>
+        <div class="col-md-4" style="height:1000px ">
+            <h2>参数设置</h2>
+            <form id="param_form">
+                <input type="hidden" id="net_param_id" name="net_param_id" value={{ net_param.net_param_id }}>
+                <div class="form-group">
+                    <label for="pv">参数版本</label>
+                    <input type="text" name="pv" class="form-control" id="pv" value={{ net_param.pv }} readonly>
+                </div>
+                <div class="form-group">
+                    <label for="temp_freq">温度采集频率</label>
+                    <div class="input-group">
+                        <input type="text" name="temp_freq" class="form-control" id="temp_freq"
+                               value={{ net_param.temp_freq }}>
+                        <span class="input-group-addon">秒</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="packet_freq">数据发送频率</label>
+                    <div class="input-group">
+                        <input type="text" name="packet_freq" class="form-control" id="packet_freq"
+                               value={{ net_param.packet_freq }}>
+                        <span class="input-group-addon">秒</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="clock_freq">同步时钟频率</label>
+                    <div class="input-group">
+                        <input type="text" name="clock_freq" class="form-control" id="clock_freq"
+                               value={{ net_param.clock_freq }}>
+                        <span class="input-group-addon">秒</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="time_window_internal">时间窗间隔</label>
+                    <div class="input-group">
+                        <input type="text" name="time_window_internal" class="form-control" id="time_window_internal"
+                               value={{ net_param.time_window_internal }}>
+                        <span class="input-group-addon">秒</span>
+                    </div>
+                </div>
+            </form>
+            <button class="btn btn-default" id="set_params">设置参数</button>
+        </div>
+    </div>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#set_params').on('click', function () {
+                var form_str = {}
+                $.each($('#param_form').serializeArray(), function (idx, res) {
+                    form_str[res.name] = res.value
+                });
+                p = {'a': 1};
+                $.ajax({
+                    type: "POST",
+                    url: "/set_params/",
+                    contentType: "application/json; charset=utf-8",
+                    data: JSON.stringify(form_str),
+                    dataType: "json",
+                    success: function (res) {
+                        alert(res)
+                    },
+                    error: function (res) {
+                        alert('error')
+
+                    }
+                });
+
+            });
+        });
+    </script>
+    <script type="text/javascript">
+
+        var myChart = echarts.init(document.getElementById('main'));
+        var params = {};
+        var index_node_id = {}
+
+        function exchange_net_addr(addr) {
+            return (addr.substring(2, 4) + addr.substring(0, 2)).toUpperCase()
+        }
+
+        var id_update_time = {};
+        var nomal_color = {
+            normal: {
+                color: {
+                    type: 'radial',
+                    x: 0.5,
+                    y: 0.5,
+                    r: 0.5,
+                    colorStops: [{
+                        offset: 1, color: '#f01215' // 100% 处的颜色
+                    }, {
+                        offset: 0, color: '#f5bdc5' // 0% 处的颜色
+                    }],
+                    globalCoord: false // 缺省为 false
+                }
+            }
+        }
+        var balc_color = {
+            normal: {
+                color: {
+                    type: 'radial',
+                    x: 0.5,
+                    y: 0.5,
+                    r: 0.5,
+                    colorStops: [{
+                        offset: 1, color: '#452f30' // 100% 处的颜色
+                    }, {
+                        offset: 0, color: '#452f30' // 0% 处的颜色
+                    }],
+                    globalCoord: false // 缺省为 false
+                }
+            }
+        }
+
+        function load_data(success) {
+            $.getJSON('/end_devices1', params, function (result) {
+                var datas = [];
+                $.each(result, function (idx, res) {
+                    if (res.e_type != 3) {
+                        return
+                    }
+                    var info = {};
+                    var axis = res.axis;
+
+                    var dat = {
+                        name: exchange_net_addr(res.net_addr),
+                        code: '' + res.code,
+                        value: res.temp,
+                        data: res,
+                        x: axis.x_value * 2,
+                        y: axis.y_value * 2,
+                        symbolSize: 40,
+                        label: {
+                            normal: {
+                                formatter: function (params) {
+                                    return ['{a|' + params.data.code + '}'].join('\n')
+
+                                },
+                                show: true,
+                                rich: {
+                                    a: {
+                                        color: 'white',
+                                        align: 'center',
+                                        fontSize: 14
+                                    },
+                                    b: {
+                                        color: 'yellow',
+                                        align: 'center',
+                                        fontSize: 14
+                                    }
+                                }
+                            }
+
+                        },
+                        itemStyle: nomal_color
+                    };
+                    if (id_update_time[res.code] && (new Date(res.update_time).getTime() !== new Date(id_update_time[res.code]).getTime())) {
+                        dat.label.normal.rich.a.fontSize = 20;
+                        dat.label.normal.rich.b.fontSize = 20;
+                        dat.symbolSize = 60;
+                        dat.itemStyle = nomal_color
+
+                    } else {
+                        if ((new Date().getTime() - new Date(res.update_time).getTime()) >= 5 * 60 * 1000) {
+                            dat.itemStyle = balc_color
+                        }
+                    }
+                    datas.push(dat);
+                    index_node_id[dat.name] = datas.length - 1;
+                    id_update_time[res.code] = res.update_time;
+                });
+                success(datas)
+            });
+
+        }
+
+        option = {
+            title: {
+                {#            text: 'Graph 简单示例'#}
+            },
+            tooltip: {
+                formatter: function (params, ticket, callback) {
+                    if (params.data && params.data.data) {
+                        var _data = params.data.data;
+                        var net = _data.net_addr;
+                        net = net.toUpperCase();
+                        net = '0X' +
+                            '' + net.substring(2, 4) + net.substring(0, 2);
+                        return "<body><table class='table'><tbody><tr><td>编号</td><td> " + _data.code + " </td></tr><tr><td>网络地址</td><td> " + net + " </td></tr><tr><td>电压</td><td> " + _data.voltage + "  V</td></tr><tr><td>温度</td><td> " + _data.temp + "  ℃</td></tr><tr><td>采集频率</td><td> " + _data.temp_freq + " 秒</td></tr><tr><td>更新时间</td><td> " + _data.update_time.substring(11, 19) + " </td></tr><tr><td>x</td><td> " + _data.axis.x_value + " </td></tr><tr><td>y</td><td> " + _data.axis.y_value + " </td></tr></tbody></table>";
+
+                        {#                return "<table class='table'>" +#}
+
+                    }
+                    {#                    "<tr><td>更新时间</td><td>"+_data.update_time+"</td></tr><tr></tr></table>";#}
+                }
+            },
+            animationDurationUpdate: 1500,
+            animationEasingUpdate: 'quinticInOut',
+            series: [
+                {
+                    type: 'graph',
+                    layout: 'none',
+                    symbolSize: 20,
+                    draggable: true,
+                    roam: true,
+                    force: {
+
+                        repulsion: 200,
+                        gravity: 0.02,
+                        edgeLength: [100, 300],
+
+                    },
+
+                    lineStyle: {
+                        normal: {
+                            width: 5
+                        }
+                    },
+                    animationDuration: 100,
+                    // edgeSymbol: ['circle', 'arrow'],
+                    edgeSymbolSize: [4, 10],
+                    edgeLabel: {
+                        normal: {
+                            textStyle: {
+                                fontSize: 20
+                            },
+                            {#                        show: false#}
+                        }
+                    },
+                    data: [],
+                    links: []
+
+                }
+            ]
+        };
+
+
+        myChart.setOption(option);
+        load_data(function (datas) {
+            myChart.setOption({
+                series: [
+                    {
+                        data: datas
+                    }
+                ]
+            })
+        });
+        setInterval(function () {
+            load_data(function (datas) {
+                option.series[0].data = datas;
+                myChart.setOption(option);
+                window.onresize = myChart.resize;
+                setTimeout(function () {
+                    $.each(datas, function (idx, val) {
+                        if (datas.label) {
+                            datas[idx].label.normal.rich.a.fontSize = 14;
+                            datas[idx].label.normal.rich.b.fontSize = 14;
+                            datas[idx].symbolSize = 20;
+                            option.series[0].data = datas;
+                            myChart.setOption(option);
+
+                        }
+                    });
+                }, 1000)
+            });
+        }, 5000)
+    </script>
+</div>
+</body>
+</html>

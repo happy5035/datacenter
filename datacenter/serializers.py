@@ -24,14 +24,21 @@ class HumiditySerializer(serializers.ModelSerializer):
     pass
 
 
-
 class EndDeviceInfoSerializer(serializers.ModelSerializer):
     class Meta:
         model = EndDeviceInfo
         fields = ('__all__')
 
 
+class RoomAxisSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RoomAxis
+        fields = (
+            '__all__')
+
+
 class EndDeviceSerializer(serializers.ModelSerializer):
+    axis = RoomAxisSerializer()
 
     class Meta:
         model = EndDevice
@@ -41,11 +48,15 @@ class EndDeviceSerializer(serializers.ModelSerializer):
 
 class TemperatureSerializer(serializers.ModelSerializer):
     end_device = EndDeviceSerializer()
+
     class Meta:
         model = Temperature
-        fields = ('__all__')
+        fields = (
+            '__all__')
 
-class SnippetSerializer(serializers.ModelSerializer):
+
+class NetParamSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Snippet
-        fields = ('id', 'title', 'code', 'linenos', 'language', 'style')
+        model = NetParam
+        fields = (
+            '__all__')

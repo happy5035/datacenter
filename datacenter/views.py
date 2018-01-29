@@ -1,16 +1,43 @@
 # -*- coding: utf-8 -*-
 from django.shortcuts import render
 import django_filters.rest_framework
+from django.views.decorators.csrf import csrf_exempt
 from rest_framework import viewsets
 from datacenter.serializers import *
 from django.http import JsonResponse, HttpResponse
 from rest_framework.parsers import JSONParser
 from rest_framework import generics
 from datacenter.filters import *
+from datacenter import params_handler
 
 
 def test(request):
     return render(request, 'index1.html')
+    pass
+
+
+@csrf_exempt
+def set_params(request):
+    data = JSONParser().parse(request)
+    param = NetParam.objects.filter(net_param_id=data.net_param_id)
+    set_param = {}
+    if data.temp_freq != param.temp_freq:
+        set_param['temp_freq'] = data.temp_freq
+        param.temp_freq = data.temp_freq
+    if data.packet_freq != param.packet_freq:
+        set_param['packet_freq'] = data.packet_freq
+        param.packet_freq = data.packet_freq
+    if data.clock_freq != param.clock_freq:
+        set_param['clock_freq'] = data.clock_freq
+        param.clock_freq = data.clock_freq
+    if data.time_window_internal != param.time_window_internal:
+        set_param['time_window_internal'] = data.time_window_internal
+        param.time_window_internal = data.time_window_internal
+    if len(set_param.keys()):
+        param.save()
+        params_handler.send_params(set_param)
+        pass
+    return JsonResponse({'result': 'success'})
     pass
 
 
@@ -49,6 +76,12 @@ def nodes(request):
     return render(request, 'end_device_nodes.html')
 
 
+def nodes_fix(request):
+    net_param = NetParam.objects.all().first()
+
+    return render(request, 'end_device_nodes_fix.html', {'net_param': net_param})
+
+
 class HumidityList(generics.ListAPIView):
     queryset = Humidity.objects.all().order_by('humi_time')
     serializer_class = HumiditySerializer
@@ -67,6 +100,12 @@ class TemperatureList(generics.ListAPIView):
 class EndDeviceList(generics.ListAPIView):
     queryset = EndDevice.objects.all()
     serializer_class = EndDeviceSerializer
+    filter_backends = (django_filters.rest_framework.DjangoFilterBackend,)
+
+
+class NetParamList(generics.ListAPIView):
+    queryset = NetParam.objects.all()
+    serializer_class = NetParamSerializer
     filter_backends = (django_filters.rest_framework.DjangoFilterBackend,)
 
 
