@@ -19,23 +19,29 @@ def test(request):
 @csrf_exempt
 def set_params(request):
     data = JSONParser().parse(request)
-    param = NetParam.objects.filter(net_param_id=data.net_param_id)
-    set_param = {}
-    if data.temp_freq != param.temp_freq:
-        set_param['temp_freq'] = data.temp_freq
-        param.temp_freq = data.temp_freq
-    if data.packet_freq != param.packet_freq:
-        set_param['packet_freq'] = data.packet_freq
-        param.packet_freq = data.packet_freq
-    if data.clock_freq != param.clock_freq:
-        set_param['clock_freq'] = data.clock_freq
-        param.clock_freq = data.clock_freq
-    if data.time_window_internal != param.time_window_internal:
-        set_param['time_window_internal'] = data.time_window_internal
-        param.time_window_internal = data.time_window_internal
-    if len(set_param.keys()):
+    param = NetParam.objects.filter(net_param_id=data['net_param_id']).first()
+    set_param = []
+    temp_freq = int(data['temp_freq'])
+    packet_freq = int(data['packet_freq'])
+    clock_freq = int(data['clock_freq'])
+    time_window_internal = int(data['time_window_internal'])
+    pv = int(data['pv'])
+    if temp_freq != param.temp_freq:
+        set_param.append({'name': 'temp_freq', 'value': temp_freq})
+        param.temp_freq = temp_freq
+    if packet_freq != param.packet_freq:
+        set_param.append({'name': 'packet_freq', 'value': packet_freq})
+        param.packet_freq = packet_freq
+    if clock_freq != param.clock_freq:
+        set_param.append({'name': 'clock_freq', 'value': clock_freq})
+        param.clock_freq = clock_freq
+    if time_window_internal != param.time_window_internal:
+        set_param.append({'name': 'time_window_internal', 'value': time_window_internal})
+        param.time_window_internal = time_window_internal
+    if len(set_param):
+        param.pv = pv + 1
         param.save()
-        params_handler.send_params(set_param)
+        params_handler.send_params({'pv': pv + 1, 'param': set_param})
         pass
     return JsonResponse({'result': 'success'})
     pass

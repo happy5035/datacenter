@@ -86,7 +86,8 @@
                     data: JSON.stringify(form_str),
                     dataType: "json",
                     success: function (res) {
-                        alert(res)
+                        alert(JSON.stringify(res))
+                        location.reload();
                     },
                     error: function (res) {
                         alert('error')

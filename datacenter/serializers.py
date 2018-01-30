@@ -24,6 +24,14 @@ class HumiditySerializer(serializers.ModelSerializer):
     pass
 
 
+class NetParamSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = NetParam
+        fields = ('__all__')
+
+    pass
+
+
 class EndDeviceInfoSerializer(serializers.ModelSerializer):
     class Meta:
         model = EndDeviceInfo
