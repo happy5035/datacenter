@@ -34,6 +34,20 @@ class RoomAdmin(admin.ModelAdmin):
     )
 
 
+class NetParamAdmin(admin.ModelAdmin):
+    exclude = ('net_param_id',)
+    list_display = (
+        'pv', 'temp_freq', 'packet_freq', 'clock_freq'
+    )
+
+
+class RoomAxisAdmin(admin.ModelAdmin):
+    exclude = ('room_axis_id',)
+    list_display = (
+        'room_id', 'x_num', 'x_value', 'y_num', 'y_value', 'z_num', 'z_value', 'note'
+    )
+
+
 class EndDeviceInfoInline(admin.TabularInline):
     model = EndDeviceInfo
     exclude = ('end_device_info_id',)
@@ -42,25 +56,35 @@ class EndDeviceInfoInline(admin.TabularInline):
 
 
 class EndDeviceAdmin(admin.ModelAdmin):
-    inlines = [EndDeviceInfoInline, ]
+    # inlines = [EndDeviceInfoInline, ]
+    view_on_site = True
     exclude = ('end_device_id',)
+    search_fields = ['code']
     list_display = (
-        'code', 'ext_addr', 'net_addr', 'voltage', 'temp', 'hum', 'hum_freq', 'temp_freq', 'status', 'update_time',
-        'test')
+        'code', 'ext_addr', 'net_addr', 'voltage', 'temp', 'hum', 'hum_freq', 'temp_freq', 'update_time',
+        'axis', 'test')
     fields = (
-        'code', 'ext_addr', 'net_addr', 'voltage', 'temp', 'hum', 'hum_freq', 'temp_freq', 'status', 'update_time')
+        'code', 'axis', 'ext_addr', 'net_addr', 'voltage', 'temp', 'hum', 'hum_freq', 'temp_freq', 'status',
+        'update_time', 'parent')
 
     def test(self, end):
         return '<a href=/diagram/{pk}>open</a>'.format(pk=end.end_device_id)
         pass
 
+    def x_num(self, ed: EndDevice):
+        return ed.axis.x_num
+        pass
+
     ordering = ['code', ]
     test.allow_tags = True
     test.short_description = 'Diagram'
+    list_filter = ('ext_addr',)
 
 
 admin.site.register(Temperature, TemperatureAdmin)
 admin.site.register(EndDevice, EndDeviceAdmin)
-admin.site.register(EndDeviceInfo, EndDeviceInfoAdmin)
+# admin.site.register(EndDeviceInfo, EndDeviceInfoAdmin)
 admin.site.register(Room, RoomAdmin)
-admin.site.register(Humidity)
+admin.site.register(NetParam, NetParamAdmin)
+admin.site.register(RoomAxis, RoomAxisAdmin)
+# admin.site.register(Humidity)

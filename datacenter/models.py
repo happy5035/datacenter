@@ -7,6 +7,8 @@ __author__ = 'XJTU_YJW'
 class Room(models.Model):
     class Meta:
         db_table = 'room'
+        verbose_name = '房间'
+        verbose_name_plural = '房间'
 
     room_id = models.IntegerField(primary_key=True, db_column='room_id')
     room_name = models.CharField(db_column='room_name', max_length=255)
@@ -22,9 +24,11 @@ class Room(models.Model):
 class RoomAxis(models.Model):
     class Meta:
         db_table = 'room_axis'
+        verbose_name = '房间坐标'
+        verbose_name_plural = '房间坐标'
 
     room_axis_id = models.AutoField(primary_key=True, auto_created=True)
-    room = models.ForeignKey(Room)
+    room = models.ForeignKey(Room, on_delete=models.CASCADE)
     x_num = models.IntegerField()
     x_value = models.IntegerField()
     y_num = models.IntegerField()
@@ -32,14 +36,21 @@ class RoomAxis(models.Model):
     z_num = models.IntegerField()
     z_value = models.IntegerField()
     note = models.CharField(max_length=255)
-    pass
+
+    def __repr__(self):
+        return '(%d,%d,%d)' % (self.x_num, self.y_num, self.z_num)
+
+    def __str__(self):
+        return '(%2d,%2d,%2d)' % (self.x_num, self.y_num, self.z_num)
 
 
 class EndDevice(models.Model):
     class Meta:
         db_table = 'end_device'
+        verbose_name = '设备'
+        verbose_name_plural = '设备'
 
-    axis = models.ForeignKey(RoomAxis)
+    axis = models.ForeignKey(RoomAxis, on_delete=models.CASCADE)
     end_device_id = models.CharField(max_length=16, db_column='end_device_id', primary_key=True)
     ext_addr = models.CharField(max_length=16, db_column='ext_addr')
     net_addr = models.CharField(max_length=4, db_column='net_addr')
@@ -63,9 +74,11 @@ class EndDevice(models.Model):
 class Temperature(models.Model):
     class Meta:
         db_table = 'temperature'
+        verbose_name = '温度数据'
+        verbose_name_plural = '温度数据'
 
     temp_id = models.CharField(max_length=11, db_column='temp_id', primary_key=True)
-    end_device = models.ForeignKey(EndDevice)
+    end_device = models.ForeignKey(EndDevice, on_delete=models.CASCADE)
     temp_value = models.FloatField(db_column='temp_value')
     temp_time = models.DateTimeField(db_column='temp_time')
 
@@ -73,9 +86,11 @@ class Temperature(models.Model):
 class Humidity(models.Model):
     class Meta:
         db_table = 'humidity'
+        verbose_name = '温度数据'
+        verbose_name_plural = '温度数据'
 
     humi_id = models.CharField(max_length=11, db_column='humi_id', primary_key=True)
-    end_device = models.ForeignKey(EndDevice)
+    end_device = models.ForeignKey(EndDevice, on_delete=models.CASCADE)
     humi_value = models.FloatField(db_column='humi_value')
     humi_time = models.DateTimeField(db_column='humi_time')
 
@@ -85,9 +100,9 @@ class EndDeviceInfo(models.Model):
         db_table = 'end_device_info'
 
     end_device_info_id = models.AutoField(primary_key=True, db_column='end_device_info_id')
-    room = models.ForeignKey(Room)
+    room = models.ForeignKey(Room, on_delete=models.CASCADE)
     end_device_code = models.IntegerField()
-    end_device = models.ForeignKey(EndDevice, related_name='info')
+    end_device = models.ForeignKey(EndDevice, related_name='info', on_delete=models.CASCADE)
     x_pos_name = models.CharField(max_length=255)
     x_pos_value = models.IntegerField()
     y_pos_name = models.CharField(max_length=255)
@@ -100,6 +115,8 @@ class EndDeviceInfo(models.Model):
 class NetParam(models.Model):
     class Meta:
         db_table = 'net_param'
+        verbose_name = '网络参数'
+        verbose_name_plural = '网络参数'
 
     net_param_id = models.AutoField(primary_key=True)
     panid = models.CharField(max_length=4)
@@ -110,6 +127,5 @@ class NetParam(models.Model):
     packet_freq = models.IntegerField()
     clock_freq = models.IntegerField()
     time_window_internal = models.IntegerField()
-
 
     pass
