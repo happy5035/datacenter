@@ -190,7 +190,8 @@
                         dat.itemStyle = nomal_color
                     } else {
                         if ((new Date().getTime() - new Date(res.update_time).getTime()) >= 5 * 60 * 1000) {
-                            dat.itemStyle = balc_color
+{#                            dat.itemStyle = balc_color#}
+                            return;
                         }
                     }
                 }
