@@ -59,23 +59,23 @@ class EndDeviceAdmin(admin.ModelAdmin):
     # inlines = [EndDeviceInfoInline, ]
     view_on_site = True
     exclude = ('end_device_id',)
-    search_fields = ['code']
+    # search_fields = ['code']
     list_display = (
-        'code', 'ext_addr', 'net_addr', 'voltage', 'temp', 'hum', 'hum_freq', 'temp_freq', 'update_time',
+        'ext_addr', 'code', 'net_addr', 'voltage', 'temp', 'hum', 'hum_freq', 'temp_freq', 'update_time',
         'axis', 'test')
     fields = (
         'code', 'axis', 'ext_addr', 'net_addr', 'voltage', 'temp', 'hum', 'hum_freq', 'temp_freq', 'status',
-        'update_time', 'parent')
+        'update_time', 'parent', 'e_type')
 
     def test(self, end):
         return '<a href=/diagram/{pk}>open</a>'.format(pk=end.end_device_id)
         pass
 
-    def x_num(self, ed: EndDevice):
-        return ed.axis.x_num
-        pass
+    # def x_num(self, ed: EndDevice):
+    #     return ed.axis.x_num
+    #     pass
 
-    ordering = ['code', ]
+    # ordering = ['code', ]
     test.allow_tags = True
     test.short_description = 'Diagram'
     list_filter = ('ext_addr',)

@@ -21,13 +21,35 @@
 
 <div class="container">
     <div class="row">
+
+        <div class="col-md-2" style="height:1000px ">
+            <h2>展示设置</h2>
+            <form>
+                <label>排列方式</label>
+                <div class="form-group">
+                    <select class="form-control" id="sort_type">
+                        <option value="2">位置排列</option>
+                        <option value="1">序号排列</option>
+                    </select>
+                </div>
+                <label>离线间隔</label>
+                <div class="form-group">
+                    <div class="input-group">
+                        <input type="text" id="offline_time" value="5" class="form-control">
+                        <span class="input-group-addon">分钟</span>
+                    </div>
+                </div>
+
+            </form>
+
+        </div>
         <div class="col-md-8" style="height:1000px ">
             <h2>采集节点展示</h2>
             <br/>
             <div id="main" style="height:100% ">
             </div>
         </div>
-        <div class="col-md-4" style="height:1000px ">
+        <div class="col-md-2" style="height:1000px ">
             <h2>参数设置</h2>
             <form id="param_form">
                 <input type="hidden" id="net_param_id" name="net_param_id" value={{ net_param.net_param_id }}>
@@ -99,7 +121,7 @@
         });
     </script>
     <script type="text/javascript">
-
+        var offline_time = 5 * 60 * 1000;
         var myChart = echarts.init(document.getElementById('main'));
         var params = {};
         var index_node_id = {}
@@ -143,22 +165,34 @@
         }
 
         function load_data(success) {
+            offline_time = parseInt($('#offline_time').val()) * 60 * 1000
             $.getJSON('/end_devices1', params, function (result) {
                 var datas = [];
                 $.each(result, function (idx, res) {
-                    if (res.e_type != 3) {
+                    if (res.e_type != 3 || res.code > 100) {
                         return
                     }
                     var info = {};
                     var axis = res.axis;
-
+                    var sort_type = $('#sort_type')[0].value;
+                    var x_value = axis.x_value * 2;
+                    var y_value = axis.y_value * 2;
+                    var x_num = 5;
+                    var x_dis = 30;
+                    var y_num = 7;
+                    var y_dis = 30;
+                    var cd = res.code - 1
+                    if (sort_type == 2) {
+                        x_value = (cd % x_num ) * x_dis;
+                        y_value = parseInt(cd / x_num) * y_dis;
+                    }
                     var dat = {
                         name: exchange_net_addr(res.net_addr),
                         code: '' + res.code,
                         value: res.temp,
                         data: res,
-                        x: axis.x_value * 2,
-                        y: axis.y_value * 2,
+                        x: x_value,
+                        y: y_value,
                         symbolSize: 40,
                         label: {
                             normal: {
@@ -191,7 +225,7 @@
                         dat.itemStyle = nomal_color
 
                     } else {
-                        if ((new Date().getTime() - new Date(res.update_time).getTime()) >= 5 * 60 * 1000) {
+                        if ((new Date().getTime() - new Date(res.update_time).getTime()) >= offline_time) {
                             dat.itemStyle = balc_color
                         }
                     }
