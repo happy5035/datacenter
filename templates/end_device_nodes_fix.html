@@ -169,9 +169,6 @@
             $.getJSON('/end_devices1', params, function (result) {
                 var datas = [];
                 $.each(result, function (idx, res) {
-                    if (res.e_type != 3 || res.code > 100) {
-                        return
-                    }
                     var info = {};
                     var axis = res.axis;
                     var sort_type = $('#sort_type')[0].value;

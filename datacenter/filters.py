@@ -41,6 +41,19 @@ class EndDeviceFilter(django_filters.FilterSet):
         fields = ['ext_addr', 'net_addr', 'status', 'voltage', 'hum_freq', 'temp_freq', 'start_time']
 
 
+class RouterDeviceFilter(django_filters.FilterSet):
+    ext_addr = filters.CharFilter(name='ext_addr')
+    net_addr = filters.CharFilter(name='net_addr')
+    status = filters.NumberFilter(name='status')
+    voltage_min = filters.NumberFilter(name='voltage', lookup_expr='gte')
+    voltage_max = filters.NumberFilter(name='voltage', lookup_expr='lte')
+    start_time = filters.DateTimeFromToRangeFilter(name='start_time')
+
+    class Meta:
+        model = EndDevice
+        fields = ['ext_addr', 'net_addr', 'status', 'voltage', 'start_time']
+
+
 class EndDeviceInfoFilter(django_filters.FilterSet):
     class Meta:
         model = EndDeviceInfo

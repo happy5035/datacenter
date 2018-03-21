@@ -81,10 +81,24 @@ class EndDeviceAdmin(admin.ModelAdmin):
     list_filter = ('ext_addr',)
 
 
+class RouterDeviceAdmin(admin.ModelAdmin):
+    # inlines = [EndDeviceInfoInline, ]
+    view_on_site = True
+    exclude = ('router_device_id',)
+    # search_fields = ['code']
+    list_display = (
+        'ext_addr', 'code', 'net_addr', 'voltage', 'update_time', 'axis')
+    fields = (
+        'code', 'axis', 'ext_addr', 'net_addr', 'voltage' 'status', 'update_time', 'parent')
+
+    list_filter = ('ext_addr',)
+
+
 admin.site.register(Temperature, TemperatureAdmin)
 admin.site.register(EndDevice, EndDeviceAdmin)
 # admin.site.register(EndDeviceInfo, EndDeviceInfoAdmin)
 admin.site.register(Room, RoomAdmin)
 admin.site.register(NetParam, NetParamAdmin)
 admin.site.register(RoomAxis, RoomAxisAdmin)
+admin.site.register(RouterDevice, RouterDeviceAdmin)
 # admin.site.register(Humidity)

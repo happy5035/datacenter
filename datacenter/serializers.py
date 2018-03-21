@@ -54,6 +54,15 @@ class EndDeviceSerializer(serializers.ModelSerializer):
             '__all__')
 
 
+class RouterDeviceSerializer(serializers.ModelSerializer):
+    axis = RoomAxisSerializer()
+
+    class Meta:
+        model = RouterDevice
+        fields = (
+            '__all__')
+
+
 class TemperatureSerializer(serializers.ModelSerializer):
     end_device = EndDeviceSerializer()
 

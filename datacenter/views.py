@@ -109,6 +109,12 @@ class EndDeviceList(generics.ListAPIView):
     filter_backends = (django_filters.rest_framework.DjangoFilterBackend,)
 
 
+class RouterDeviceList(generics.ListAPIView):
+    queryset = RouterDevice.objects.all()
+    serializer_class = RouterDeviceSerializer
+    filter_backends = (django_filters.rest_framework.DjangoFilterBackend,)
+
+
 class NetParamList(generics.ListAPIView):
     queryset = NetParam.objects.all()
     serializer_class = NetParamSerializer
@@ -139,6 +145,12 @@ class TemperatureDetial(generics.RetrieveUpdateDestroyAPIView):
 class EndDeviceDetial(generics.RetrieveUpdateDestroyAPIView):
     queryset = EndDevice.objects.all()
     serializer_class = EndDeviceSerializer
+    pass
+
+
+class RouterDeviceDetial(generics.RetrieveUpdateDestroyAPIView):
+    queryset = RouterDevice.objects.all()
+    serializer_class = RouterDeviceSerializer
     pass
 
 
@@ -180,6 +192,21 @@ def end_device_list(request):
     elif request.method == 'POST':
         data = JSONParser().parse(request)
         serializer = EndDeviceSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return JsonResponse(serializer.data, status=201)
+        return JsonResponse(serializer.errors, status=400)
+    pass
+
+
+def router_device_list(request):
+    if request.method == 'GET':
+        router_device = RouterDevice.objects.all()
+        serializer = RouterDeviceSerializer(router_device, many=True)
+        return JsonResponse(serializer.data, safe=False)
+    elif request.method == 'POST':
+        data = JSONParser().parse(request)
+        serializer = RouterDeviceSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
             return JsonResponse(serializer.data, status=201)
@@ -244,6 +271,26 @@ def end_device_detail(request, pk):
         return JsonResponse(serializer.errors, status=404)
     elif request.method == 'DELETE':
         end_device.delete()
+        return HttpResponse(status=204)
+
+
+def router_device_detail(request, pk):
+    try:
+        router_device = RouterDevice.objects.get(router_device_id=pk)
+    except RouterDevice.DoesNotExist:
+        return HttpResponse(status=404)
+    if request.method == 'GET':
+        serializer = RouterDeviceSerializer(router_device)
+        return JsonResponse(serializer.data)
+    elif request.method == 'PUT':
+        data = JSONParser().parse(request)
+        serializer = RouterDeviceSerializer(router_device, data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return JsonResponse(serializer.data)
+        return JsonResponse(serializer.errors, status=404)
+    elif request.method == 'DELETE':
+        router_device.delete()
         return HttpResponse(status=204)
 
 

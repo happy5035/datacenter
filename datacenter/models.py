@@ -47,8 +47,8 @@ class RoomAxis(models.Model):
 class EndDevice(models.Model):
     class Meta:
         db_table = 'end_device'
-        verbose_name = '设备'
-        verbose_name_plural = '设备'
+        verbose_name = '终端设备'
+        verbose_name_plural = '终端设备'
 
     axis = models.ForeignKey(RoomAxis, on_delete=models.CASCADE)
     end_device_id = models.CharField(max_length=16, db_column='end_device_id', primary_key=True)
@@ -69,6 +69,27 @@ class EndDevice(models.Model):
     parent = models.CharField(max_length=4, db_column='parent')
     time_window = models.IntegerField(db_column='time_window')
     e_type = models.IntegerField(db_column='type')
+
+
+class RouterDevice(models.Model):
+    class Meta:
+        db_table = 'router_device'
+        verbose_name = '路由器'
+        verbose_name_plural = '路由器'
+
+    axis = models.ForeignKey(RoomAxis, on_delete=models.CASCADE)
+    router_device_id = models.CharField(max_length=16, db_column='router_device_id', primary_key=True)
+    ext_addr = models.CharField(max_length=16, db_column='ext_addr')
+    net_addr = models.CharField(max_length=4, db_column='net_addr')
+    name = models.CharField(max_length=255, db_column='name', default='')
+    start_time = models.DateTimeField(db_column='start_time')
+    status = models.IntegerField(db_column='status')
+    voltage = models.FloatField(db_column='voltage')
+    update_time = models.DateTimeField(db_column='update_time')
+    code = models.IntegerField()
+    rssi = models.IntegerField()
+    lqi = models.IntegerField()
+    parent = models.CharField(max_length=4, db_column='parent')
 
 
 class Temperature(models.Model):

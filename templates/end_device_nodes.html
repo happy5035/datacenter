@@ -40,67 +40,116 @@
             </div>
         </div>
     </div>
-    <script type="text/javascript">
+</div>
+<script type="text/javascript">
 
-        var myChart = echarts.init(document.getElementById('main'));
-        var params = {};
-        var index_node_id = {}
+    var myChart = echarts.init(document.getElementById('main'));
+    var params = {};
+    var index_node_id = {}
 
-        function exchange_net_addr(addr) {
-            return (addr.substring(2, 4) + addr.substring(0, 2)).toUpperCase()
-        }
+    function exchange_net_addr(addr) {
+        return (addr.substring(2, 4) + addr.substring(0, 2)).toUpperCase()
+    }
 
-        var id_update_time = {};
-        var nomal_color = {
-            normal: {
-                color: {
-                    type: 'radial',
-                    x: 0.5,
-                    y: 0.5,
-                    r: 0.5,
-                    colorStops: [{
-                        offset: 1, color: '#f01215' // 100% 处的颜色
-                    }, {
-                        offset: 0, color: '#f5bdc5' // 0% 处的颜色
-                    }],
-                    globalCoord: false // 缺省为 false
-                }
+    var id_update_time = {};
+    var nomal_color = {
+        normal: {
+            color: {
+                type: 'radial',
+                x: 0.5,
+                y: 0.5,
+                r: 0.5,
+                colorStops: [{
+                    offset: 1, color: '#f01215' // 100% 处的颜色
+                }, {
+                    offset: 0, color: '#f5bdc5' // 0% 处的颜色
+                }],
+                globalCoord: false // 缺省为 false
             }
         }
-        var balc_color = {
-            normal: {
-                color: {
-                    type: 'radial',
-                    x: 0.5,
-                    y: 0.5,
-                    r: 0.5,
-                    colorStops: [{
-                        offset: 1, color: '#452f30' // 100% 处的颜色
-                    }, {
-                        offset: 0, color: '#452f30' // 0% 处的颜色
-                    }],
-                    globalCoord: false // 缺省为 false
-                }
+    }
+    var balc_color = {
+        normal: {
+            color: {
+                type: 'radial',
+                x: 0.5,
+                y: 0.5,
+                r: 0.5,
+                colorStops: [{
+                    offset: 1, color: '#452f30' // 100% 处的颜色
+                }, {
+                    offset: 0, color: '#452f30' // 0% 处的颜色
+                }],
+                globalCoord: false // 缺省为 false
             }
         }
+    }
 
-        function load_data(success) {
-            $.getJSON('/end_devices1', params, function (result) {
-                var datas = [];
-                var old_datas = option.series[0].data;
+    function load_coor(callback, success) {
+        var datas = [];
+        var coor = {
+            name: '0000',
+            code: 1,
+            x: 0,
+            y: 0,
+            value: 0,
+            symbolSize: 80,
+            itemStyle: nomal_color,
+            label: {
+                normal: {
+                    formatter: function (params) {
+                        return ['{a|' + params.data.name + '}'].join('\n')
+                    },
+                    show: true,
+                    rich: {
+                        a: {
+                            color: 'blue',
+                            align: 'center',
+                            fontSize: 14
+                        },
+                        b: {
+                            color: 'yellow',
+                            align: 'center',
+                            fontSize: 14
+                        }
+                    }
+                }
 
-                var coor = {
-                    name: '0000',
-                    code: 1,
-                    x: 0,
-                    y: 0,
-                    value: 0,
-                    symbolSize: 80,
-                    itemStyle: nomal_color,
+            }
+        };
+        callback(coor, null);
+        success()
+    }
+
+    function load_router(callback, success) {
+        $.getJSON('/router_devices1', params, function (result) {
+            $.each(result, function (idx, res) {
+                res.info && res.info.length && (info = res.info[0]);
+                res.e_type = 2;
+                var link_value = 1;
+                var symbolSize = 80;
+                var link = {
+                    source: '' + exchange_net_addr(res.net_addr),
+                    target: '' + exchange_net_addr(res.parent),
+
+                    lineStyle: {
+                        normal: {
+                            width: 2
+                        }
+                    },
+                    value: link_value
+                };
+
+                var dat = {
+                    name: exchange_net_addr(res.net_addr),
+                    code: '' + res.code,
+                    value: res.temp | 0.0,
+                    data: res,
+                    symbolSize: symbolSize,
                     label: {
                         normal: {
                             formatter: function (params) {
-                                return ['{a|' + params.data.name + '}'].join('\n')
+                                return ['{a|' + params.data.code + '}'].join('\n')
                             },
                             show: true,
                             rich: {
@@ -117,194 +166,198 @@
                             }
                         }
 
-                    }
-                };
-                datas.push(coor);
-                var links = []
-                $.each(result, function (idx, res) {
-                    var info = {};
-                    res.info && res.info.length && (info = res.info[0]);
-                    var link_value = 1;
-                    var symbolSize = 80;
-                    if (res.e_type == 3) {
-                        link_value = 2;
-                        symbolSize = 40
-                    } else if (res.e_type == 2) {
-                        link_value = 1;
-                        symbolSize = 80
-                    }
-                    var link = {
-                        source: '' + exchange_net_addr(res.net_addr),
-                        target: '' + exchange_net_addr(res.parent),
-
-                        lineStyle: {
-                            normal: {
-                                width: 2
-                            }
-                        },
-                        value: link_value
-                    };
-                    links.push(link);
-                    var dat = {
-                        name: exchange_net_addr(res.net_addr),
-                        code: '' + res.code,
-                        value: res.temp | 0.0,
-                        data: res,
-                        x: info.x_pos_value,
-                        y: info.y_pos_value,
-                        symbolSize: symbolSize,
-                        label: {
-                            normal: {
-                                formatter: function (params) {
-                                    if (res.e_type == 3) {
-                                        if(res.temp == null) {
-                                            res.temp = 0.0;
-                                        }
-                                        return ['{a|' + params.data.code + '}', '{b|' + res.temp.toFixed(2) + '℃' + '}'].join('\n')
-                                    } else {
-                                        return ['{a|' + params.data.code + '}'].join('\n')
-
-                                    }
-                                },
-                                show: true,
-                                rich: {
-                                    a: {
-                                        color: 'blue',
-                                        align: 'center',
-                                        fontSize: 14
-                                    },
-                                    b: {
-                                        color: 'yellow',
-                                        align: 'center',
-                                        fontSize: 14
-                                    }
-                                }
-                            }
-
-                        },
-                        itemStyle: nomal_color
-                    };
-                    if (res.e_type == 3) {
-
-                        if (id_update_time[res.code] && (new Date(res.update_time).getTime() !== new Date(id_update_time[res.code]).getTime())) {
-                            dat.label.normal.rich.a.fontSize = 20;
-                            dat.label.normal.rich.b.fontSize = 20;
-                            dat.symbolSize = 60;
-                            dat.itemStyle = nomal_color
-                        } else {
-                            if ((new Date().getTime() - new Date(res.update_time).getTime()) >= 5 * 60 * 1000) {
-                                {#                            dat.itemStyle = balc_color#}
-                                return;
-                            }
-                        }
-                    }
-                    datas.push(dat);
-                    index_node_id[dat.name] = datas.length - 1;
-                    id_update_time[res.code] = res.update_time;
-                });
-                success(datas, links)
-            });
-
-        }
-
-        option = {
-            title: {
-                {#            text: 'Graph 简单示例'#}
-            },
-            tooltip: {
-                formatter: function (params, ticket, callback) {
-                    {#                    $.get('enddevice_tooltip/' + params.data.id, function (content) {#}
-                    {#                        callback(ticket, content);#}
-                    {#                    });#}
-                    if (params.data && params.data.data) {
-                        var _data = params.data.data;
-                        var net = _data.net_addr;
-                        net = net.toUpperCase();
-                        net = '0X' +
-                            '' + net.substring(2, 4) + net.substring(0, 2);
-                        if (_data.e_type == 3)
-                            return "<body><table class='table'><tbody><tr><td>编号</td><td> " + _data.code + " </td></tr><tr><td>网络地址</td><td> " + net + " </td></tr><tr><td>电压</td><td> " + _data.voltage + "  V</td></tr><tr><td>温度</td><td> " + _data.temp + "  ℃</td></tr><tr><td>采集频率</td><td> " + _data.temp_freq + " 秒</td></tr><tr><td>更新时间</td><td> " + _data.update_time.substring(11, 19) + " </td></tr><tr><td>RSSI</td><td> " + _data.rssi + " </td></tr><tr><td>LQI</td><td> " + _data.lqi + " </td></tr></tbody></table>";
-                        if (_data.e_type == 2)
-                            return "<body><table class='table'><tbody><tr><td>编号</td><td> " + _data.code + " </td></tr><tr><td>网络地址</td><td> " + net + " </td></tr><tr><td>RSSI</td><td> " + _data.rssi + " </td></tr><tr><td>LQI</td><td> " + _data.lqi + " </td></tr></tbody></table>";
-
-                        {#                return "<table class='table'>" +#}
-
-                    }
-                    {#                    "<tr><td>更新时间</td><td>"+_data.update_time+"</td></tr><tr></tr></table>";#}
-                }
-            },
-            animationDurationUpdate: 1500,
-            animationEasingUpdate: 'quinticInOut',
-            series: [
-                {
-                    type: 'graph',
-                    layout: 'force',
-                    symbolSize: 20,
-                    draggable: true,
-                    roam: true,
-                    force: {
-
-                        repulsion: 200,
-                        gravity: 0.02,
-                        edgeLength: [100, 300],
-
                     },
+                    itemStyle: nomal_color
+                };
+                callback(dat, link)
+            });
+            success()
+        });
+    }
+
+    function load_end(callback, success) {
+        $.getJSON('/end_devices1', params, function (result) {
+            $.each(result, function (idx, res) {
+                res.info && res.info.length && (info = res.info[0]);
+                res.e_type = 3;
+                var link_value = 2;
+                var symbolSize = 40;
+                var link = {
+                    source: '' + exchange_net_addr(res.net_addr),
+                    target: '' + exchange_net_addr(res.parent),
 
                     lineStyle: {
                         normal: {
-                            width: 5
+                            width: 2
                         }
                     },
-                    animationDuration: 100,
-                    // edgeSymbol: ['circle', 'arrow'],
-                    edgeSymbolSize: [4, 10],
-                    edgeLabel: {
+                    value: link_value
+                };
+                var dat = {
+                    name: exchange_net_addr(res.net_addr),
+                    code: '' + res.code,
+                    value: res.temp | 0.0,
+                    data: res,
+                    symbolSize: symbolSize,
+                    label: {
                         normal: {
-                            textStyle: {
-                                fontSize: 20
+                            formatter: function (params) {
+                                if (res.temp == null) {
+                                    res.temp = 0.0;
+                                }
+                                return ['{a|' + params.data.code + '}', '{b|' + res.temp.toFixed(2) + '℃' + '}'].join('\n')
                             },
-                            {#                        show: false#}
+                            show: true,
+                            rich: {
+                                a: {
+                                    color: 'blue',
+                                    align: 'center',
+                                    fontSize: 14
+                                },
+                                b: {
+                                    color: 'yellow',
+                                    align: 'center',
+                                    fontSize: 14
+                                }
+                            }
                         }
+
                     },
-                    data: [],
-                    links: []
+                    itemStyle: nomal_color
+                };
+                if (id_update_time[res.code] && (new Date(res.update_time).getTime() !== new Date(id_update_time[res.code]).getTime())) {
+                    dat.label.normal.rich.a.fontSize = 20;
+                    dat.label.normal.rich.b.fontSize = 20;
+                    dat.symbolSize = 60;
+                    dat.itemStyle = nomal_color
+                } else {
+                    if ((new Date().getTime() - new Date(res.update_time).getTime()) >= 5 * 60 * 1000) {
+                        return;
+                    }
+                }
+                id_update_time[res.code] = res.update_time;
+                callback(dat, link)
+            });
+            success();
+        });
+
+    }
+
+    function load_data(success) {
+        var datas = [];
+        var links = [];
+        load_coor(function (data, link) {
+            datas.push(data)
+        }, function () {
+            load_router(function (data, link) {
+                datas.push(data);
+                links.push(link);
+            }, function () {
+                load_end(function (data, link) {
+                    datas.push(data);
+                    links.push(link);
+                }, function () {
+                    success(datas, links);
+                });
+            });
+        });
+
+
+    }
+
+    option = {
+        title: {},
+        tooltip: {
+            formatter: function (params, ticket, callback) {
+                if (params.data && params.data.data) {
+                    var _data = params.data.data;
+                    var net = _data.net_addr;
+                    net = net.toUpperCase();
+                    net = '0X' +
+                        '' + net.substring(2, 4) + net.substring(0, 2);
+                    if (_data.e_type == 3)
+                        return "<body><table class='table'><tbody><tr><td>编号</td><td> " + _data.code + " </td></tr><tr><td>网络地址</td><td> " + net + " </td></tr><tr><td>电压</td><td> " + _data.voltage + "  V</td></tr><tr><td>温度</td><td> " + _data.temp + "  ℃</td></tr><tr><td>采集频率</td><td> " + _data.temp_freq + " 秒</td></tr><tr><td>更新时间</td><td> " + _data.update_time.substring(11, 19) + " </td></tr><tr><td>RSSI</td><td> " + _data.rssi + " </td></tr><tr><td>LQI</td><td> " + _data.lqi + " </td></tr></tbody></table>";
+                    if (_data.e_type == 2)
+                        return "<body><table class='table'><tbody><tr><td>编号</td><td> " + _data.code + " </td></tr><tr><td>网络地址</td><td> " + net + " </td></tr><tr><td>RSSI</td><td> " + _data.rssi + " </td></tr><tr><td>LQI</td><td> " + _data.lqi + " </td></tr></tbody></table>";
+
+                    {#                return "<table class='table'>" +#}
 
                 }
-            ]
-        };
+                {#                    "<tr><td>更新时间</td><td>"+_data.update_time+"</td></tr><tr></tr></table>";#}
+            }
+        },
+        animationDurationUpdate: 1500,
+        animationEasingUpdate: 'quinticInOut',
+        series: [
+            {
+                type: 'graph',
+                layout: 'force',
+                symbolSize: 20,
+                draggable: true,
+                roam: true,
+                force: {
 
+                    repulsion: 200,
+                    gravity: 0.02,
+                    edgeLength: [100, 300],
 
-        myChart.setOption(option);
-        load_data(function (datas, links) {
-            myChart.setOption({
-                series: [
-                    {
-                        data: datas,
-                        links: links
+                },
+
+                lineStyle: {
+                    normal: {
+                        width: 5
                     }
-                ]
-            })
-        });
-        setInterval(function () {
-            load_data(function (datas, links) {
-                option.series[0].data = datas;
-                option.series[0].links = links;
-                myChart.setOption(option);
-                window.onresize = myChart.resize;
-                setTimeout(function () {
-                    $.each(datas, function (idx, val) {
-                        if (datas.label) {
-                            datas[idx].label.normal.rich.a.fontSize = 14;
-                            datas[idx].label.normal.rich.b.fontSize = 14;
-                            datas[idx].symbolSize = 20;
-                            option.series[0].data = datas;
-                            myChart.setOption(option);
+                },
+                animationDuration: 100,
+                // edgeSymbol: ['circle', 'arrow'],
+                edgeSymbolSize: [4, 10],
+                edgeLabel: {
+                    normal: {
+                        textStyle: {
+                            fontSize: 20
+                        },
+                        {#                        show: false#}
+                    }
+                },
+                data: [],
+                links: []
 
-                        }
-                    });
-                }, 1000)
-            });
-        }, 5000)
-    </script>
+            }
+        ]
+    };
+
+
+    myChart.setOption(option);
+    load_data(function (datas, links) {
+        myChart.setOption({
+            series: [
+                {
+                    data: datas,
+                    links: links
+                }
+            ]
+        })
+    });
+    setInterval(function () {
+        load_data(function (datas, links) {
+            option.series[0].data = datas;
+            option.series[0].links = links;
+            myChart.setOption(option);
+            window.onresize = myChart.resize;
+            setTimeout(function () {
+                $.each(datas, function (idx, val) {
+                    if (datas.label) {
+                        datas[idx].label.normal.rich.a.fontSize = 14;
+                        datas[idx].label.normal.rich.b.fontSize = 14;
+                        datas[idx].symbolSize = 20;
+                        option.series[0].data = datas;
+                        myChart.setOption(option);
+
+                    }
+                });
+            }, 1000)
+        });
+    }, 5000)
+</script>
 </body>
 </html>
