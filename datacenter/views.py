@@ -9,6 +9,7 @@ from rest_framework.parsers import JSONParser
 from rest_framework import generics
 from datacenter.filters import *
 from datacenter import params_handler
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 
 
 def test(request):
@@ -104,7 +105,7 @@ class TemperatureList(generics.ListAPIView):
 
 
 class EndDeviceList(generics.ListAPIView):
-    queryset = EndDevice.objects.all()
+    queryset = EndDevice.objects.all().order_by('code')
     serializer_class = EndDeviceSerializer
     filter_backends = (django_filters.rest_framework.DjangoFilterBackend,)
 
@@ -198,6 +199,27 @@ def end_device_list(request):
         return JsonResponse(serializer.errors, status=400)
     pass
 
+def end_device_page_list(request,page,num):
+    if request.method == 'GET':
+        end_devices = EndDevice.objects.all()
+        paginator = Paginator(end_devices, int(num))
+        try:
+            end_devices_page = paginator.page(int(page))
+        except PageNotAnInteger:
+            end_devices_page = paginator.page(1)
+        except EmptyPage:
+            end_devices_page = paginator.page(paginator.num_pages)
+        end_devices = end_devices_page.object_list
+        serializer = EndDeviceSerializer(end_devices, many=True)
+        return JsonResponse(serializer.data, safe=False)
+    elif request.method == 'POST':
+        data = JSONParser().parse(request)
+        serializer = EndDeviceSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return JsonResponse(serializer.data, status=201)
+        return JsonResponse(serializer.errors, status=400)
+    pass
 
 def router_device_list(request):
     if request.method == 'GET':
@@ -272,6 +294,8 @@ def end_device_detail(request, pk):
     elif request.method == 'DELETE':
         end_device.delete()
         return HttpResponse(status=204)
+
+
 
 
 def router_device_detail(request, pk):

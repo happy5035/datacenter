@@ -11,6 +11,7 @@
     <script src="{% static 'js/echarts.min.js' %}"></script>
     <script src="{% static 'asset/js/jquery.min.js' %}"></script>
     <script src="{% static 'js/date_format.js' %}"></script>
+    <script src="{% static 'dist/js/bootstrap.js' %}"></script>
 
     <link href="{% static 'dist/css/bootstrap.min.css' %}" rel="stylesheet">
     <link href="{% static 'grid.css' %}" rel="stylesheet">
@@ -35,14 +36,51 @@
                 <label>离线间隔</label>
                 <div class="form-group">
                     <div class="input-group">
-                        <input type="text" id="offline_time" value="5" class="form-control">
+                        <input type="text" id="offline_time" value="3" class="form-control">
                         <span class="input-group-addon">分钟</span>
                     </div>
+                </div>
+                <label>每排节点个数</label>
+                <div class="form-group">
+                    <div class="input-group">
+                        <input type="text" id="node_num" value="10" class="form-control">
+                        <span class="input-group-addon">个</span>
+                    </div>
+                </div>
+                <label>每页总个数</label>
+                <div class="form-group">
+                    <div class="input-group">
+                        <input type="text" id="node_sum" value="100" class="form-control">
+                        <span class="input-group-addon">个</span>
+                    </div>
+                </div>
+                <input type="hidden" id="current_page" value="0">
+                <div>
+                    <button type="button" value="11" class="btn btn-primary" id="previous_page" disabled>上一页</button>
+                    <button type="button" class="btn btn-primary" id="next_page">下一页</button>
                 </div>
 
             </form>
 
         </div>
+        <script type="text/javascript">
+            $(document).ready(function () {
+                var node_sum = $('#node_sum').val();
+                $.getJSON('/end_devices', function (result) {
+                    if (result.length < node_sum) {
+                        $('#next_page').attr('disabled', 'disabled')
+                    }
+                });
+                $('#previous_page').on('click', function () {
+                    $('#current_page').val($('#previous_page').attr('value'));
+                    update_node_status()
+                });
+                $('#next_page').on('click', function () {
+                    $('#current_page').val($('#next_page').attr('value'))
+                    update_node_status()
+                });
+            });
+        </script>
         <div class="col-md-8" style="height:1000px ">
             <h2>采集节点展示</h2>
             <br/>
@@ -90,7 +128,7 @@
                     </div>
                 </div>
             </form>
-            <button class="btn btn-default" id="set_params">设置参数</button>
+            <button class="btn btn-primary" id="set_params">设置参数</button>
         </div>
     </div>
     <script type="text/javascript">
@@ -123,8 +161,9 @@
     <script type="text/javascript">
         var offline_time = 5 * 60 * 1000;
         var myChart = echarts.init(document.getElementById('main'));
-        var params = {};
-        var index_node_id = {}
+
+        var index_node_id = {};
+        var limit = $('node_sum').val();
 
         function exchange_net_addr(addr) {
             return (addr.substring(2, 4) + addr.substring(0, 2)).toUpperCase()
@@ -165,8 +204,32 @@
         }
 
         function load_data(success) {
-            offline_time = parseInt($('#offline_time').val()) * 60 * 1000
-            $.getJSON('/end_devices1', params, function (result) {
+            var params = {};
+            offline_time = parseInt($('#offline_time').val()) * 60 * 1000;
+            var limit = $('#node_sum').val();
+            params['limit'] = limit;
+            var url = $('#current_page').val();
+            if (url == 0) {
+                url = '/end_devices1'
+            } else {
+
+            }
+
+            $.getJSON(url, params, function (result) {
+                if (result.next != null) {
+                    $('#next_page').removeAttr('disabled');
+                    $('#next_page').attr('value', result.next)
+                } else {
+                    $('#next_page').attr('disabled', 'disabled');
+                }
+                if (result.previous != null) {
+                    $('#previous_page').removeAttr('disabled');
+                    $('#previous_page').attr('value', result.previous)
+                } else {
+
+                    $('#previous_page').attr('disabled', 'disabled');
+                }
+                result = result.results;
                 var datas = [];
                 $.each(result, function (idx, res) {
                     var info = {};
@@ -174,10 +237,11 @@
                     var sort_type = $('#sort_type')[0].value;
                     var x_value = axis.x_value * 2;
                     var y_value = axis.y_value * 2;
-                    var x_num = 5;
-                    var x_dis = 30;
+                    var x_num = 10;
+                    x_num = $('#node_num')[0].value | 0;
+                    var x_dis = 20;
                     var y_num = 7;
-                    var y_dis = 30;
+                    var y_dis = 20;
                     var cd = res.code - 1
                     if (sort_type == 2) {
                         x_value = (cd % x_num ) * x_dis;
@@ -306,7 +370,8 @@
                 ]
             })
         });
-        setInterval(function () {
+
+        function update_node_status() {
             load_data(function (datas) {
                 option.series[0].data = datas;
                 myChart.setOption(option);
@@ -324,6 +389,11 @@
                     });
                 }, 1000)
             });
+
+        }
+
+        setInterval(function () {
+            update_node_status()
         }, 5000)
     </script>
 </div>

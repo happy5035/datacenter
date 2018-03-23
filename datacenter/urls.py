@@ -44,6 +44,7 @@ urlpatterns = [
     url(r'^humiditys/$', views.humidity_list),
     url(r'^temperatures/$', views.temperature_list),
     url(r'^end_devices/$', views.end_device_list),
+    url(r'^end_devices_page/(?P<page>\S+)/(?P<num>\S+)/$', views.end_device_page_list),
     url(r'^router_devices/$', views.router_device_list),
     url(r'^humiditys/(?P<pk>\S+)/$', views.humidity_detail),
     url(r'^temperatures/(?P<pk>\S+)/$', views.temperature_detail),
