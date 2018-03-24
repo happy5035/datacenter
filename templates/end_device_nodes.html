@@ -123,6 +123,7 @@
 
     function load_router(callback, success) {
         $.getJSON('/router_devices1', params, function (result) {
+            result = result.results
             $.each(result, function (idx, res) {
                 res.info && res.info.length && (info = res.info[0]);
                 res.e_type = 2;
@@ -177,6 +178,7 @@
 
     function load_end(callback, success) {
         $.getJSON('/end_devices1', params, function (result) {
+            result = result.results
             $.each(result, function (idx, res) {
                 res.info && res.info.length && (info = res.info[0]);
                 res.e_type = 3;
