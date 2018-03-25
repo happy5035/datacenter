@@ -77,3 +77,17 @@ class NetParamSerializer(serializers.ModelSerializer):
         model = NetParam
         fields = (
             '__all__')
+
+
+class CabinetPosSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CabinetPos
+        fields = (
+            '__all__')
+
+
+class EndCabinetRelationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = EndCabinetRelation
+        fields = (
+            '__all__')

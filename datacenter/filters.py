@@ -58,3 +58,15 @@ class EndDeviceInfoFilter(django_filters.FilterSet):
     class Meta:
         model = EndDeviceInfo
         fields = []
+
+
+class CabinetPosFilter(django_filters.FilterSet):
+    class Meta:
+        model = CabinetPos
+        fields = []
+
+
+class EndCabinetRelationFilter(django_filters.FilterSet):
+    class Meta:
+        model = EndCabinetRelation
+        fields = ['end_device_id',]

@@ -49,6 +49,7 @@ class EndDevice(models.Model):
         db_table = 'end_device'
         verbose_name = '终端设备'
         verbose_name_plural = '终端设备'
+        ordering = ['code']
 
     axis = models.ForeignKey(RoomAxis, on_delete=models.CASCADE)
     end_device_id = models.CharField(max_length=16, db_column='end_device_id', primary_key=True)
@@ -69,6 +70,12 @@ class EndDevice(models.Model):
     parent = models.CharField(max_length=4, db_column='parent')
     time_window = models.IntegerField(db_column='time_window')
     e_type = models.IntegerField(db_column='type')
+
+    def __repr__(self):
+        return '%d' % self.code
+
+    def __str__(self):
+        return '%d' % self.code
 
 
 class RouterDevice(models.Model):
@@ -150,3 +157,31 @@ class NetParam(models.Model):
     time_window_internal = models.IntegerField()
 
     pass
+
+
+class CabinetPos(models.Model):
+    class Meta:
+        db_table = 'cabinet_pos'
+        verbose_name = '机柜位置信息'
+        verbose_name_plural = '机柜位置信息'
+        ordering = ['cabinet_row', 'cabinet_num', 'cabinet_unum', 'front_back']
+
+    cabinet_pos_id = models.AutoField(primary_key=True)
+    cabinet_row = models.IntegerField()
+    cabinet_num = models.IntegerField()
+    cabinet_unum = models.IntegerField()
+    room_name = models.IntegerField()
+    front_back = models.IntegerField()
+    note = models.CharField(max_length=255)
+
+
+class EndCabinetRelation(models.Model):
+    class Meta:
+        db_table = 'end_cabinet_relation'
+        verbose_name = '终端机柜位置信息'
+        verbose_name_plural = '终端机柜位置信息'
+
+    end_cabinet_relation_id = models.AutoField(primary_key=True)
+    end_device = models.ForeignKey(EndDevice, on_delete=models.CASCADE)
+    cabinet = models.ForeignKey(CabinetPos, db_column='start_cabinet_id')
+    add_time = models.DateTimeField(auto_now=True)

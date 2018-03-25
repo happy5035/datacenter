@@ -48,6 +48,11 @@ class RoomAxisAdmin(admin.ModelAdmin):
     )
 
 
+class EndCabinetRelation(admin.TabularInline):
+    model = EndCabinetRelation
+    exclude = ('end_cabinet_relation_id',)
+
+
 class EndDeviceInfoInline(admin.TabularInline):
     model = EndDeviceInfo
     exclude = ('end_device_info_id',)
@@ -56,7 +61,7 @@ class EndDeviceInfoInline(admin.TabularInline):
 
 
 class EndDeviceAdmin(admin.ModelAdmin):
-    # inlines = [EndDeviceInfoInline, ]
+    # inlines = [EndCabinetRelation, ]
     view_on_site = True
     exclude = ('end_device_id',)
     # search_fields = ['code']
@@ -81,6 +86,78 @@ class EndDeviceAdmin(admin.ModelAdmin):
     list_filter = ('ext_addr',)
 
 
+class CabinetRowListFilter(admin.SimpleListFilter):
+    title = ('机柜列位置')
+    parameter_name = 'row'
+
+    def lookups(self, request, model_admin):
+        qs = model_admin.get_queryset(request)
+        rows = []
+        for cp in qs:
+
+            if cp.cabinet_row in rows:
+                pass
+            else:
+                rows.append(cp.cabinet_row)
+        for r in rows:
+            yield (r, (chr(r + 64)))
+        pass
+
+    def queryset(self, request, queryset):
+        if self.value() is not None:
+            return queryset.filter(cabinet_row=self.value())
+        else:
+            return queryset
+
+
+class CabinetNumListFilter(admin.SimpleListFilter):
+    title = ('机柜编号')
+    parameter_name = 'num'
+
+    def lookups(self, request, model_admin):
+        qs = model_admin.get_queryset(request)
+        rows = []
+        for cp in qs:
+
+            if cp.cabinet_num in rows:
+                pass
+            else:
+                rows.append(cp.cabinet_num)
+        for r in rows:
+            yield (r, (chr(r + 64)))
+        pass
+
+    def queryset(self, request, queryset):
+        if self.value() is not None:
+            return queryset.filter(cabinet_num=self.value())
+        else:
+            return queryset
+
+
+class CabinetUNumListFilter(admin.SimpleListFilter):
+    title = ('机柜U编号')
+    parameter_name = 'num'
+
+    def lookups(self, request, model_admin):
+        qs = model_admin.get_queryset(request)
+        rows = []
+        for cp in qs:
+
+            if cp.cabinet_unum in rows:
+                pass
+            else:
+                rows.append(cp.cabinet_unum)
+        for r in rows:
+            yield (r, ('%sU' % r))
+        pass
+
+    def queryset(self, request, queryset):
+        if self.value() is not None:
+            return queryset.filter(cabinet_unum=self.value())
+        else:
+            return queryset
+
+
 class RouterDeviceAdmin(admin.ModelAdmin):
     # inlines = [EndDeviceInfoInline, ]
     view_on_site = True
@@ -94,6 +171,45 @@ class RouterDeviceAdmin(admin.ModelAdmin):
     list_filter = ('ext_addr',)
 
 
+class CabinetPosAdmin(admin.ModelAdmin):
+    exclude = ('cabinet_pos_id',)
+    inlines = (EndCabinetRelation,)
+    list_display = ('name', 'room_name', 'cabinet_row_name', 'cabinet_num_name', 'cabinet_unum_name', 'front_back1')
+    fields = ('room_name', 'cabinet_row', 'cabinet_num', 'cabinet_unum')
+    list_filter = (CabinetRowListFilter, CabinetNumListFilter, CabinetUNumListFilter)
+
+    def name(self, m: CabinetPos):
+        if m.front_back == 0:
+            return '%s-%s%s%sU 前' % (m.room_name, chr(m.cabinet_row + 64), chr(m.cabinet_num + 64), m.cabinet_unum)
+        else:
+            return '%s-%s%s%sU 后' % (m.room_name, chr(m.cabinet_row + 64), chr(m.cabinet_num + 64), m.cabinet_unum)
+
+    name.short_description = '编号位置'
+
+    def cabinet_row_name(self, m: CabinetPos):
+        return chr(m.cabinet_row + 64)
+
+    cabinet_row_name.short_description = '列编号'
+
+    def cabinet_num_name(self, m: CabinetPos):
+        return chr(m.cabinet_num + 64)
+
+    cabinet_num_name.short_description = '机柜编号'
+
+    def cabinet_unum_name(self, m: CabinetPos):
+        return '%sU' % m.cabinet_unum
+
+    cabinet_unum_name.short_description = 'U编号'
+
+    def front_back1(self, m: CabinetPos):
+        if m.front_back == 0:
+            return '前面'
+        if m.front_back == 1:
+            return '背面'
+
+    front_back1.short_description = '面'
+
+
 admin.site.register(Temperature, TemperatureAdmin)
 admin.site.register(EndDevice, EndDeviceAdmin)
 # admin.site.register(EndDeviceInfo, EndDeviceInfoAdmin)
@@ -101,4 +217,5 @@ admin.site.register(Room, RoomAdmin)
 admin.site.register(NetParam, NetParamAdmin)
 admin.site.register(RoomAxis, RoomAxisAdmin)
 admin.site.register(RouterDevice, RouterDeviceAdmin)
+admin.site.register(CabinetPos, CabinetPosAdmin)
 # admin.site.register(Humidity)
